@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "merkiso-scrapers"
+name = "app"
 version = "0.1.0"
 description = "Merkiso Scrapers"
 authors = ["German Castellanos <germancodeg@gmail.com>"]
