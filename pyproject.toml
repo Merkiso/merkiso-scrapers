@@ -1,15 +1,24 @@
 [tool.poetry]
-name = "app"
+name = "scrapers_searchs"
 version = "0.1.0"
 description = "Merkiso Scrapers"
 authors = ["German Castellanos <germancodeg@gmail.com>"]
 readme = "README.md"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-scrapy = "^2.5.0"
-twisted = "^22.10.0"
+[project]
+name = "scrapers_searchs"
+authors = ["German Castellanos <germancodeg@gmail.com>"]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+dependencies = [
+    "Scrapy==2.9.0",
+    "Twisted==22.10.0"
+]
+
+description = "Merkiso Scrapers"
+requires-python = ">=3.9"
+
+
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = { attr = "__version__" }
