@@ -1,17 +1,15 @@
+[tool.poetry]
+name = "merkiso-scrapers"
+version = "0.1.0"
+description = "Merkiso Scrapers"
+authors = ["German Castellanos <germancodeg@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+scrapy = "^2.5.0"
+twisted = "^22.10.0"
+
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "scrapers_utils"
-authors = [
-    { name = "German Castellanos", email = "germancodeg@gmail.com" },
-]
-
-dependencies = [
-    "Scrapy==2.9.0",
-    "Twisted==22.10.0",
-]
-
-description = "Utils and modules for atlantia search scraping project"
-requires-python = ">=3.9"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
