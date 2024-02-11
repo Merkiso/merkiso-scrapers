@@ -8,13 +8,9 @@
 from itemadapter import ItemAdapter
 
 
-class LittleprojectPipeline:
+class ScrapersSearhsPipeline:
     def process_item(self, item, spider):
-        print(f"Saving item: {item}")
-        # save item in json file
-        with open("players.json", "a") as file:
-            file.write(f"{item}\n")
-        
+        print(f"Item: {item}")
         return item
     
     

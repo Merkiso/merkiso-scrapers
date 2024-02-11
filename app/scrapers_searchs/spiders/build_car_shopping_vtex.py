@@ -4,10 +4,9 @@ import scrapy
 
 from string import Template
 from scrapy.crawler import CrawlerProcess
-from utils.build_url import build_url
+from app.scrapers_searchs.utils.build_url import build_url
 
-from structs.items_car_shop import BuildItems
-
+from app.scrapers_searchs.structs.items_car_shop import BuildItems
 
 
 
