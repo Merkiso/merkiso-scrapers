@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scrapers_utils"
+authors = [
+    { name = "German Castellanos", email = "germancodeg@gmail.com" },
+]
+
+dependencies = [
+    "Scrapy==2.9.0",
+    "Twisted==22.10.0",
+]
+
+description = "Utils and modules for atlantia search scraping project"
+requires-python = ">=3.9"
+
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = { attr = "__version__" }
+
+#[tool.setuptools]
+#py-modules = ["db", "broker", "gcs", "utils"]\
