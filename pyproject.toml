@@ -15,11 +15,3 @@ dependencies = [
 
 description = "Utils and modules for atlantia search scraping project"
 requires-python = ">=3.9"
-
-dynamic = ["version"]
-
-[tool.setuptools.dynamic]
-version = { attr = "__version__" }
-
-#[tool.setuptools]
-#py-modules = ["db", "broker", "gcs", "utils"]\
