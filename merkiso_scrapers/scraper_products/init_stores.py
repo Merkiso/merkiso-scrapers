@@ -1,5 +1,5 @@
-from scrapers_searchs.db.database import DbThreadConnection
-from scrapers_searchs.db.models.stores import Store
+from scraper_products.db.database import DbThreadConnection
+from scraper_products.db.models.stores import Store
 
 db_scoped_connection = DbThreadConnection(pool_size = 10, max_overflow = 15, pool_recycle = -1)
 

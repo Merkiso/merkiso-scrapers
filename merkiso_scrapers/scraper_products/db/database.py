@@ -7,7 +7,7 @@ from sqlalchemy.orm import (
 )
 
 from sqlalchemy.exc import OperationalError
-from scrapers_searchs.settings import DATABASE_URL
+from scraper_products.settings import DATABASE_URL
 
 class DbThreadConnection:
 

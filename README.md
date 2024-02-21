@@ -8,8 +8,8 @@ This project contains a collection of web scrapers developed in Python for the p
 4. Install the required dependencies: `pip install -r requirements.txt`
 5. create .env, example:
     ```
-    PYTHONPATH=$PYTHONPATH:/mnt/d/merkiso-scrapers/src
-    DATABASE_URL=/mnt/d/merkiso-scrapers/src/scrapers_searchs/db/merkiso.db
+    PYTHONPATH=$PYTHONPATH:/mnt/d/merkiso-scrapers/merkiso_scrapers
+    DATABASE_URL=/mnt/d/merkiso-scrapers/merkiso_scrapers/scraper_products/db/merkiso.db
 
     MINIO_ROOT_USER=98ua6O7Wp0Ciyl5m
     MINIO_ROOT_PASSWORD=FGx05ZyTCsp4gy6wryRUBJSMX4nIGubH
@@ -38,7 +38,7 @@ This project contains a collection of web scrapers developed in Python for the p
 
 ## Usage
 1. Navigate to the project directory: `cd merkiso-scrapers`
-2. Navigate to the spiders directory: `cd src/scrapers_searchs/spiders`
+2. Navigate to the spiders directory: `cd merkiso_scrapers/scraper_products/spiders`
 3. Run the desired specific spider to scraper: `python any_spider.py`
 4. or execute scrapy command: `scrapy crawl scrapers_vtex -a product_name=ensalada -o outputs/json_result.json`
 5. and see in the  `outputs/` the json generated with data scraped

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from scrapers_searchs.db.base import Base
+from scraper_products.db.base import Base
 
 class Store(Base):
     __tablename__ = 'stores'

@@ -9,10 +9,10 @@
 
 import os
 from dotenv import load_dotenv
-BOT_NAME = "scrapers_searchs"
+BOT_NAME = "scraper_products"
 
-SPIDER_MODULES = ["scrapers_searchs.spiders"]
-NEWSPIDER_MODULE = "scrapers_searchs.spiders"
+SPIDER_MODULES = ["scraper_products.spiders"]
+NEWSPIDER_MODULE = "scraper_products.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -72,7 +72,7 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    "scrapers_searchs.pipelines.ScrapersSearhsPipeline": 100,
+    "scraper_products.pipelines.ScrapersSearhsPipeline": 100,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

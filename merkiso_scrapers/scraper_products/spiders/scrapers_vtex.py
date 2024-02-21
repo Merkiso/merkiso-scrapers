@@ -4,12 +4,13 @@ import scrapy
 
 from string import Template
 from scrapy.crawler import CrawlerProcess
-from scrapers_searchs.db.database import DbThreadConnection
-from scrapers_searchs.db.models.stores import Store
-from scrapers_searchs.items import ProductListItem, ProductItem
-from scrapers_searchs.utils.build_url import build_url
+from scraper_products.db.database import DbThreadConnection
+from scraper_products.db.models.stores import Store
+from scraper_products.items import ProductListItem, ProductItem
+from scraper_products.utils.build_url import build_url
 from itemloaders import ItemLoader
-import snoop
+
+
 class ScrapersVtex(scrapy.Spider):
     name = "scrapers_vtex"
     allowed_domains = ["*"]
@@ -45,7 +46,7 @@ class ScrapersVtex(scrapy.Spider):
 
     def start_requests(self):
         for store in self.search_data['stores']:
-            print("store", store)
+
             query_param_products = {
                 "query": self.search_data['search_name']
             }
@@ -109,7 +110,7 @@ class ScrapersVtex(scrapy.Spider):
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
                         "store": store
                     }
-                    print("product_data", product_data)
+
                     product_items.append(self.create_item_product(product_data))
                 
             item_loader.add_value("products", product_items)
