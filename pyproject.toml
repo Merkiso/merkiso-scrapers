@@ -10,6 +10,7 @@ name = "scrapers_searchs"
 authors = [{ name = "German Castellanos", email = "germancodeg@gmail.com" }]
 dependencies = [
     "Scrapy==2.10.1",
+    "python-dotenv==1.0.1",
 ]
 
 description = "Merkiso Scrapers"
