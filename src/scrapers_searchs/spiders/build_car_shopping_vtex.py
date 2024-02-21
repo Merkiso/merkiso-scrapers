@@ -1,3 +1,4 @@
+
 import json
 from typing import Final
 import scrapy
@@ -11,7 +12,7 @@ from scrapers_searchs.structs.items_car_shop import BuildItems
 
 
 class BuildCarShopingVtex(scrapy.Spider):
-    name = "example"
+    name = "build_car_shopping_vtex"
     allowed_domains = ["www.olimpica.com"]
     
     URL_CHECKOUT: Final[str] = Template('https://$domain/api/checkout')

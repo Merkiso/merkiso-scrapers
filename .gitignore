@@ -33,3 +33,4 @@ env2/
 *.log
 *.cache
 *.DS_Store
+.env

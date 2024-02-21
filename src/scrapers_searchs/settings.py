@@ -7,6 +7,8 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import os
+from dotenv import load_dotenv
 BOT_NAME = "scrapers_searchs"
 
 SPIDER_MODULES = ["scrapers_searchs.spiders"]
@@ -69,9 +71,9 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "littleproject.pipelines.LittleprojectPipeline": 300,
-#}
+ITEM_PIPELINES = {
+    "scrapers_searchs.pipelines.ScrapersSearhsPipeline": 100,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
@@ -100,4 +102,17 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 LOG_ENABLED = True
 
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
+# En settings.py
+
+load_dotenv()
+
+MINIO_ROOT_USER= os.getenv("MINIO_ROOT_USER")
+MINIO_ROOT_PASSWORD= os.getenv("MINIO_ROOT_PASSWORD")
+MINIO_ENDPOINT= os.getenv("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY= os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY= os.getenv("MINIO_SECRET_KEY")
+MINIO_BUCKET_NAME= os.getenv("MINIO_BUCKET_NAME")
+MINIO_USES_SSL= os.getenv("MINIO_USES_SSL")
+
+DATABASE_URL= os.getenv("DATABASE_URL")

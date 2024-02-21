@@ -1,17 +1,18 @@
-from typing import Final
+import traceback
+from typing import Final, List
 import scrapy
 
 from string import Template
 from scrapy.crawler import CrawlerProcess
+from scrapers_searchs.db.database import DbThreadConnection
+from scrapers_searchs.db.models.stores import Store
 from scrapers_searchs.items import ProductListItem, ProductItem
 from scrapers_searchs.utils.build_url import build_url
 from itemloaders import ItemLoader
-
-
-class ScraperVtex(scrapy.Spider):
-    name = "scraper_vtex"
+import snoop
+class ScrapersVtex(scrapy.Spider):
+    name = "scrapers_vtex"
     allowed_domains = ["*"]
-
 
     URL_PRODUCTS_TEMPLATE: Final[str] = Template('https://$domain/api/io/_v/api/intelligent-search/product_search')
     COUNT_PRODUCTS_PER_PAGE: Final[int] = 10
@@ -24,71 +25,99 @@ class ScraperVtex(scrapy.Spider):
     }
 
     STORE: str = "store"
+
+    handle_httpstatus_list = [406]
+
+
+    def get_stores(self):
+        db_thread_connection = DbThreadConnection(pool_size = 10, max_overflow = 15, pool_recycle = -1)
+        with db_thread_connection.session() as db_session:
+            stores = db_session.query(Store).all()
+            return stores
     
-    def __init__(self, domain: str , store: str, product_name: str, **kwargs):
-        self.URL_PRODUCTS = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)
-        self.QUERY_PARAM_PRODUCTS["query"] = product_name
-        self.STORE = store
-        super(ScraperVtex, self).__init__(**kwargs)
+    def __init__(self, product_name: str, **kwargs):
+        self.search_data = {
+            "search_name": product_name,
+            "stores": [store.__json__() for store in self.get_stores()],
+        }
+        super(ScrapersVtex, self).__init__(**kwargs)
+
 
     def start_requests(self):
-        url = build_url(self.URL_PRODUCTS, self.QUERY_PARAM_PRODUCTS)
+        for store in self.search_data['stores']:
+            print("store", store)
+            query_param_products = {
+                "query": self.search_data['search_name']
+            }
+            
+            domain = store.get("domain")
 
-        yield scrapy.Request(
-            url=url,
-            method="GET",
-            callback=self.parse,
-        )
+            URL_PRODUCTS = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)
+            
+            url = build_url(URL_PRODUCTS, query_param_products)
 
-    
+            yield scrapy.Request(
+                url=url,
+                method="GET",
+                callback=self.parse,
+                meta={"store": store}
+            )
+
     def parse(self, response):
-
-        response_json = response.json()
-        products = response_json["products"]
-
-        product_items = []
-        
-        item_loader = ItemLoader(item=ProductListItem())
-        
-        for product in products:
-            products_items = product.get("items", [])
+        try:
+            store = response.meta["store"]
             
-            for product_item in products_items:
-                price = 0
-                availability = False
-                comercial_offer = {}
+            response_json = response.json()
+            products = response_json["products"]
+            product_items = []
+            
+            item_loader = ItemLoader(item=ProductListItem())
+            item_loader.add_value("search_data", self.search_data)
+            
+            for product in products:
+                products_items = product.get("items", [])
                 
-                sellers = list(
-                    filter(
-                        lambda x: x["sellerDefault"] == True,
-                        product_item["sellers"]
-                    )
-                )
-                
-                if sellers:
-                    comercial_offer = sellers[0]["commertialOffer"]
+                for product_item in products_items:
+                    price = 0
+
+                    comercial_offer = {}
                     
-                if comercial_offer:
-                    availability = comercial_offer["AvailableQuantity"] > 0
-                    price = comercial_offer["Price"]
+                    sellers = list(
+                        filter(
+                            lambda x: x["sellerDefault"] == True,
+                            product_item["sellers"]
+                        )
+                    )
+                    
+                    if sellers:
+                        comercial_offer = sellers[0]["commertialOffer"]
+                        
+                    if comercial_offer:
+                        availability = comercial_offer["AvailableQuantity"] > 0
+                        price = comercial_offer["Price"]
+                    
+                    product_data = {
+                        "search_name" : self.search_data["search_name"],
+                        "product_id": product_item["itemId"],
+                        "name": product_item["name"],
+                        "description": product_item["complementName"],
+                        "url": product["link"],
+                        "ean": product_item["ean"],
+                        "sku": '',
+                        "availability": availability,
+                        "price": price,
+                        "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
+                        "store": store
+                    }
+                    print("product_data", product_data)
+                    product_items.append(self.create_item_product(product_data))
                 
-                product_data = {
-                    "name": product_item["name"],
-                    "description": product_item["complementName"],
-                    "url": product["link"],
-                    "ean": product_item["ean"],
-                    "sku": '',
-                    "availability": availability,
-                    "price": price,
-                    "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
-                    "store": self.STORE
-                }
-
-                product_items.append(self.create_item_product(product_data))
+            item_loader.add_value("products", product_items)
             
-        item_loader.add_value("products", product_items)
-        
-        yield item_loader.load_item()
+            yield item_loader.load_item()
+        except Exception as e:
+            traceback.print_exc()
+            yield {"error": True}
 
     def create_item_product(self, product_data):
 
@@ -104,14 +133,12 @@ class ScraperVtex(scrapy.Spider):
 if __name__ == "__main__":
 
     # Instancia el spider
-    mi_spider_instance = ScraperVtex
+    mi_spider_instance = ScrapersVtex
 
     # Configura y ejecuta el proceso de Scrapy
     process = CrawlerProcess()
     process.crawl(
         mi_spider_instance, 
-        domain="www.olimpica.com",
-        store='olimpica',
-        product_name="detergente liquido"
+        product_name="manzana"
     )
     process.start()
