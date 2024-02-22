@@ -94,7 +94,6 @@ class ScrapersVtex(scrapy.Spider):
                         comercial_offer = sellers[0]["commertialOffer"]
                         
                     if comercial_offer:
-                        availability = comercial_offer["AvailableQuantity"] > 0
                         price = comercial_offer["Price"]
                     
                     product_data = {
@@ -105,8 +104,8 @@ class ScrapersVtex(scrapy.Spider):
                         "url": product["link"],
                         "ean": product_item["ean"],
                         "sku": '',
-                        "availability": availability,
                         "price": price,
+                        "promo_price": comercial_offer.get("PriceWithoutDiscount"),
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
                         "store": store
                     }
