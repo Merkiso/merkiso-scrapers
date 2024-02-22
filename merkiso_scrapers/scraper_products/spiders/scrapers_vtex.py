@@ -80,6 +80,7 @@ class ScrapersVtex(scrapy.Spider):
                 
                 for product_item in products_items:
                     price = 0
+                    promo_price = 0
 
                     comercial_offer = {}
                     
@@ -94,8 +95,18 @@ class ScrapersVtex(scrapy.Spider):
                         comercial_offer = sellers[0]["commertialOffer"]
                         
                     if comercial_offer:
-                        price = comercial_offer["Price"]
+                        promo_price = comercial_offer["Price"]
+                        price = comercial_offer.get("PriceWithoutDiscount")
+
+                    if not comercial_offer.get("AvailableQuantity"):    
+                        continue
                     
+                    if price == 0 and promo_price == 0:
+                        continue
+                    
+                    if not price:
+                        continue
+
                     product_data = {
                         "search_name" : self.search_data["search_name"],
                         "product_id": product_item["itemId"],
@@ -105,7 +116,7 @@ class ScrapersVtex(scrapy.Spider):
                         "ean": product_item["ean"],
                         "sku": '',
                         "price": price,
-                        "promo_price": comercial_offer.get("PriceWithoutDiscount"),
+                        "promo_price":promo_price,
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
                         "store": store
                     }
