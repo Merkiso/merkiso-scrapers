@@ -1,4 +1,7 @@
+# lib
 from sqlalchemy import Column, Integer, String
+
+# scraper
 from scraper_products.db.base import Base
 
 class Store(Base):

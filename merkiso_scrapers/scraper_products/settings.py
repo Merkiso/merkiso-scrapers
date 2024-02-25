@@ -9,6 +9,8 @@
 
 import os
 from dotenv import load_dotenv
+
+
 BOT_NAME = "scraper_products"
 
 SPIDER_MODULES = ["scraper_products.spiders"]
@@ -43,7 +45,6 @@ DEFAULT_REQUEST_HEADERS = {
   'Accept': '*/*',
   'Accept-Language': 'es-MX,es;q=0.8,en-US;q=0.5,en;q=0.3',
   'Accept-Encoding': 'gzip, deflate, br',
-  'Referer': 'https://www.transfermarkt.co/wettbewerbe/national/wettbewerbe/83',
   'X-KL-kfa-Ajax-Request': 'Ajax_Request',
   'Connection': 'keep-alive',
   'Sec-Fetch-Dest': 'empty',
@@ -72,7 +73,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    "scraper_products.pipelines.ScrapersSearhsPipeline": 100,
+    "scraper_products.pipelines.ScrapersSearhsPipeline": 1,
+    "scraper_products.pipelines.ScrapersTopSearhsPipeline": 2,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -103,7 +105,6 @@ FEED_EXPORT_ENCODING = "utf-8"
 LOG_ENABLED = True
 
 LOG_LEVEL = "INFO"
-# En settings.py
 
 load_dotenv()
 

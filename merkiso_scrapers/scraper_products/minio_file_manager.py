@@ -1,7 +1,7 @@
-import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
 from io import BytesIO
+import boto3
 
 from .settings import (
     MINIO_ACCESS_KEY,

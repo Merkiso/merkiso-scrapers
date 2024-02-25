@@ -1,12 +1,13 @@
-import os
-import time
+# lib
+from sqlalchemy.exc import OperationalError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import (
     sessionmaker,
     scoped_session
 )
+import time
 
-from sqlalchemy.exc import OperationalError
+# scraper
 from scraper_products.settings import DATABASE_URL
 
 class DbThreadConnection:

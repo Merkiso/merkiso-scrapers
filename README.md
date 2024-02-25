@@ -43,14 +43,3 @@ This project contains a collection of web scrapers developed in Python for the p
 4. or execute scrapy command: `scrapy crawl scrapers_vtex -a product_name=ensalada -o outputs/json_result.json`
 5. and see in the  `outputs/` the json generated with data scraped
 
-## Contributing
-Contributions are welcome! If you have any ideas or improvements, feel free to submit a pull request.
-
-## License
-This project is licensed under the [MIT License](LICENSE).
-
-## Disclaimer
-Please use this project responsibly and in accordance with the terms and conditions of the websites you are scraping. Be respectful of the website owners' policies and do not engage in any illegal activities.
-
-## Contact
-For any questions or inquiries, please contact [your-email@example.com](mailto:your-email@example.com).

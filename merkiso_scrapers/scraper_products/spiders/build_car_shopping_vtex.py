@@ -1,14 +1,13 @@
-
-import json
+# lib
+from scrapy.crawler import CrawlerProcess
+from string import Template
 from typing import Final
 import scrapy
+import json
 
-from string import Template
-from scrapy.crawler import CrawlerProcess
-from scraper_products.utils.build_url import build_url
-
+# scraper
 from scraper_products.structs.items_car_shop import BuildItems
-
+from scraper_products.utils.build_url import build_url
 
 
 class BuildCarShopingVtex(scrapy.Spider):

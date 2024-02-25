@@ -1,14 +1,16 @@
+# lib
+from scrapy.crawler import CrawlerProcess
+from itemloaders import ItemLoader
+from string import Template
+from typing import Final
 import traceback
-from typing import Final, List
 import scrapy
 
-from string import Template
-from scrapy.crawler import CrawlerProcess
-from scraper_products.db.database import DbThreadConnection
-from scraper_products.db.models.stores import Store
+# app
 from scraper_products.items import ProductListItem, ProductItem
+from scraper_products.db.database import DbThreadConnection
 from scraper_products.utils.build_url import build_url
-from itemloaders import ItemLoader
+from scraper_products.db.models.stores import Store
 
 
 class ScrapersVtex(scrapy.Spider):
@@ -65,20 +67,29 @@ class ScrapersVtex(scrapy.Spider):
             )
 
     def parse(self, response):
+        
         try:
             store = response.meta["store"]
+            
+            query_search = response.url.split("?")[1]
+            query_search = query_search.split("&")[0]
+            query_search = query_search.split("=")[1]
             
             response_json = response.json()
             products = response_json["products"]
             product_items = []
             
             item_loader = ItemLoader(item=ProductListItem())
-            item_loader.add_value("search_data", self.search_data)
+            
+            search_data = self.search_data.copy()
+            search_data['search_name'] = query_search
+            item_loader.add_value("search_data", search_data)
             
             for product in products:
                 products_items = product.get("items", [])
                 
                 for product_item in products_items:
+
                     price = 0
                     promo_price = 0
 
@@ -108,7 +119,7 @@ class ScrapersVtex(scrapy.Spider):
                         continue
 
                     product_data = {
-                        "search_name" : self.search_data["search_name"],
+                        "search_name" : search_data["search_name"],
                         "product_id": product_item["itemId"],
                         "name": product_item["name"],
                         "description": product_item["complementName"],
@@ -143,10 +154,10 @@ class ScrapersVtex(scrapy.Spider):
 
 if __name__ == "__main__":
 
-    # Instancia el spider
+    # Spider instance
     mi_spider_instance = ScrapersVtex
 
-    # Configura y ejecuta el proceso de Scrapy
+    # run spider
     process = CrawlerProcess()
     process.crawl(
         mi_spider_instance, 

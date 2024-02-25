@@ -1,7 +1,7 @@
-import re
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy import Column, Integer, DateTime, Boolean
 from datetime import datetime
+import re
 
 
 @as_declarative()
