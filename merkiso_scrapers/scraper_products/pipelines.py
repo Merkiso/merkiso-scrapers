@@ -24,7 +24,9 @@ class ScrapersSearhsPipeline:
             for product in products:
                 product_item = dict(product)
                 clean_item = ProcessData.clean_fields(product_item)
-                self.items.append(clean_item)
+                
+                if clean_item not in self.items:
+                    self.items.append(clean_item)
 
         return item
     
@@ -41,6 +43,11 @@ class ScrapersSearhsPipeline:
             "products": self.items
         })
         products_bytes_data = products_json.encode('utf-8')
+        
+        # save json file
+        with open('data.json', 'w') as file:
+            json.dump(self.items, file, indent=4)
+        
         try:
             minio_files_manager.upload_public_file(
                 filename=spider.search_data['search_name'],
