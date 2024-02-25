@@ -131,8 +131,9 @@ class ScrapersVtex(scrapy.Spider):
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
                         "store": store
                     }
-
-                    product_items.append(self.create_item_product(product_data))
+                    
+                    if product_data not in product_items:
+                        product_items.append(self.create_item_product(product_data))
                 
             item_loader.add_value("products", product_items)
             
