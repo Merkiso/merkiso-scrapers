@@ -1,29 +1,46 @@
 # lib
-from sqlalchemy.exc import OperationalError
-from sqlalchemy import create_engine
-from sqlalchemy.orm import (
-    sessionmaker,
-    scoped_session
-)
-import time
+from pymongo import MongoClient
+
 
 # scraper
-from scraper_products.settings import DATABASE_URL
+from scraper_products.settings import MONGO_URI
 
-class DbThreadConnection:
+class DbConnection:
 
-    def __init__(self, pool_size: int = 2, max_overflow: int = 8, pool_recycle = 3600) -> None:
-        engine = create_engine(f"sqlite:///{DATABASE_URL}", connect_args={'check_same_thread': False}, poolclass=None)
-        self.session = scoped_session(sessionmaker(bind=engine ))
+    def __init__(self) -> None:
+        print(MONGO_URI)
+        self.client = MongoClient(MONGO_URI)
+
+    def get_db(self, db_name: str):
+        return self.client[db_name]
+    
+    def get_collection(self, db_name: str, collection_name: str):
+        return self.get_db(db_name)[collection_name]
+    
+    def close(self):
+        self.client.close()
+    
+    def create_index(self, db_name: str, collection_name: str, index: str):
+        collection = self.get_collection(db_name, collection_name)
+        collection.create_index(index, unique=True)
+    
+    def insert_one(self, db_name: str, collection_name: str, data: dict):
+        collection = self.get_collection(db_name, collection_name)
+        collection.insert_one(data)
         
-        self.engine = engine
-
-    def retry_on_operational_error(func, max_retries=3, retry_interval=1):
-        for attempt in range(max_retries):
-            try:
-                return func()
-            except OperationalError as e:
-                print(f"OperationalError: {e}. Retrying...")
-                time.sleep(retry_interval)
+    def insert_many(self, db_name: str, collection_name: str, data: list):
+        print(f"b {data}")
+        collection = self.get_collection(db_name, collection_name)
+        collection.insert_many(data)
         
-        raise Exception("Max retries exceeded. Unable to complete operation.")
+    def find_one(self, db_name: str, collection_name: str, query: dict):
+        collection = self.get_collection(db_name, collection_name)
+        return collection.find_one(query)
+    
+    def find(self, db_name: str, collection_name: str, query: dict):
+        collection = self.get_collection(db_name, collection_name)
+        return collection.find(query)
+    
+    def update_one(self, db_name: str, collection_name: str, query: dict, data: dict):
+        collection = self.get_collection(db_name, collection_name)
+        collection.update_one(query, data, upsert=True)

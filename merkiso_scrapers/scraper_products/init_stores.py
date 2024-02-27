@@ -1,7 +1,6 @@
-from scraper_products.db.database import DbThreadConnection
-from scraper_products.db.models.stores import Store
+from scraper_products.db.database import DbConnection
 
-db_scoped_connection = DbThreadConnection(pool_size = 10, max_overflow = 15, pool_recycle = -1)
+db_connection = DbConnection()
 
 def create_stores():
 
@@ -14,19 +13,35 @@ def create_stores():
         {'name': 'Carulla', 'url': 'https://www.carulla.com', 'domain': 'www.carulla.com'},
         {'name': 'Metro', 'url': 'https://www.tiendasmetro.co', 'domain': 'www.tiendasmetro.co'},
     ]
+    stores_collection = db_connection.get_collection(db_name="merkiso_db", collection_name="stores")
 
-    with db_scoped_connection.session() as db_session:
+    # Crea un índice único en el campo 'name'
+    stores_collection.create_index([('name', 1)], unique=True)
+
+    for doc in data_list:
         
-        all_stores = db_session.query(Store).all()
+        store = db_connection.find_one(
+            db_name="merkiso_db", 
+            collection_name="stores", 
+            query={
+                "url": doc["url"]
+            }
+        )
         
-        if all_stores:
-            return
-        
-        for data in data_list:
-            store = Store(
-                name = data["name"],
-                url = data["url"],
-                domain = data["domain"],
+        if store:
+            db_connection.update_one(
+                db_name="merkiso_db",
+                collection_name="stores",
+                query={"url": doc["url"]},
+                data={"$set": doc}
             )
-            db_session.add(store)
-        db_session.commit()
+            continue
+        
+        db_connection.insert_one(
+            db_name="merkiso_db",
+            collection_name="stores",
+            data=doc
+        )
+
+if __name__ == "__main__":
+    create_stores()

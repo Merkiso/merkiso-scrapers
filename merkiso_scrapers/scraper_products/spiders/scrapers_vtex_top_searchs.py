@@ -21,7 +21,7 @@ class ScrapersVtexTopSearchs(ScrapersVtex):
 
     def start_requests(self):
         
-        stores = [store.__json__() for store in self.get_stores()]
+        stores = [store for store in self.get_stores()]
         
         for store in stores:
 

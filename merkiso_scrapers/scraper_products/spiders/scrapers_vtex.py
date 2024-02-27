@@ -8,9 +8,8 @@ import scrapy
 
 # app
 from scraper_products.items import ProductListItem, ProductItem
-from scraper_products.db.database import DbThreadConnection
 from scraper_products.utils.build_url import build_url
-from scraper_products.db.models.stores import Store
+from scraper_products.db.database import DbConnection
 
 
 class ScrapersVtex(scrapy.Spider):
@@ -31,17 +30,19 @@ class ScrapersVtex(scrapy.Spider):
 
     handle_httpstatus_list = [406]
 
-
     def get_stores(self):
-        db_thread_connection = DbThreadConnection(pool_size = 10, max_overflow = 15, pool_recycle = -1)
-        with db_thread_connection.session() as db_session:
-            stores = db_session.query(Store).all()
-            return stores
+        db_connection = DbConnection()
+        stores = db_connection.find(
+            db_name="merkiso_db",
+            collection_name="stores",
+            query={}
+        )
+        return list(stores)
     
     def __init__(self, product_name: str, **kwargs):
         self.search_data = {
             "search_name": product_name,
-            "stores": [store.__json__() for store in self.get_stores()],
+            "stores": [store for store in self.get_stores()],
         }
         super(ScrapersVtex, self).__init__(**kwargs)
 

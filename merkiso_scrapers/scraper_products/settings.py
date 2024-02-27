@@ -74,7 +74,6 @@ DEFAULT_REQUEST_HEADERS = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     "scraper_products.pipelines.ScrapersSearhsPipeline": 1,
-    "scraper_products.pipelines.ScrapersTopSearhsPipeline": 2,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -108,12 +107,4 @@ LOG_LEVEL = "INFO"
 
 load_dotenv()
 
-MINIO_ROOT_USER= os.getenv("MINIO_ROOT_USER")
-MINIO_ROOT_PASSWORD= os.getenv("MINIO_ROOT_PASSWORD")
-MINIO_ENDPOINT= os.getenv("MINIO_ENDPOINT")
-MINIO_ACCESS_KEY= os.getenv("MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY= os.getenv("MINIO_SECRET_KEY")
-MINIO_BUCKET_NAME= os.getenv("MINIO_BUCKET_NAME")
-MINIO_USES_SSL= os.getenv("MINIO_USES_SSL")
-
-DATABASE_URL= os.getenv("DATABASE_URL")
+MONGO_URI= os.getenv("MONGO_URI")

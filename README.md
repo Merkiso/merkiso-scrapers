@@ -9,15 +9,7 @@ This project contains a collection of web scrapers developed in Python for the p
 5. create .env, example:
     ```
     PYTHONPATH=$PYTHONPATH:/mnt/d/merkiso-scrapers/merkiso_scrapers
-    DATABASE_URL=/mnt/d/merkiso-scrapers/merkiso_scrapers/scraper_products/db/merkiso.db
-
-    MINIO_ROOT_USER=98ua6O7Wp0Ciyl5m
-    MINIO_ROOT_PASSWORD=FGx05ZyTCsp4gy6wryRUBJSMX4nIGubH
-    MINIO_ENDPOINT=http://192.168.1.231:9000
-    MINIO_ACCESS_KEY=98ua6O7Wp0Ciyl5m
-    MINIO_SECRET_KEY=FGx05ZyTCsp4gy6wryRUBJSMX4nIGubH
-    MINIO_BUCKET_NAME=merkiso
-    MINIO_USES_SSL=False
+    MONGO_URI="mongodb+srv://merki057:<password>@cluster0.qtwthhb.mongodb.net/merkiso_db?retryWrites=true&w=majority&appName=Cluster0"
     ```
 6. and, if you use windows, entry to folder venv/Scripts/activate and write in the last line: 
 
