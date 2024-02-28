@@ -8,7 +8,6 @@ from scraper_products.settings import MONGO_URI
 class DbConnection:
 
     def __init__(self) -> None:
-        print(MONGO_URI)
         self.client = MongoClient(MONGO_URI)
 
     def get_db(self, db_name: str):
@@ -29,7 +28,6 @@ class DbConnection:
         collection.insert_one(data)
         
     def insert_many(self, db_name: str, collection_name: str, data: list):
-        print(f"b {data}")
         collection = self.get_collection(db_name, collection_name)
         collection.insert_many(data)
         

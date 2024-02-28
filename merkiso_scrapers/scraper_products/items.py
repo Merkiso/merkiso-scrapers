@@ -16,7 +16,6 @@ class ProductItem(scrapy.Item):
     url = scrapy.Field()
     ean = scrapy.Field()
     sku = scrapy.Field()
-    availability = scrapy.Field()
     price = scrapy.Field()
     promo_price = scrapy.Field()
     images = scrapy.Field()

@@ -14,7 +14,7 @@ from scraper_products.db.database import DbConnection
 
 class ScrapersVtex(scrapy.Spider):
     name = "scrapers_vtex"
-    allowed_domains = ["*"]
+    allowed_domains = []
 
     URL_PRODUCTS_TEMPLATE: Final[str] = Template('https://$domain/api/io/_v/api/intelligent-search/product_search')
     COUNT_PRODUCTS_PER_PAGE: Final[int] = 10

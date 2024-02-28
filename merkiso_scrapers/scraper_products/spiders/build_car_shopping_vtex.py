@@ -8,11 +8,11 @@ import json
 # scraper
 from scraper_products.structs.items_car_shop import BuildItems
 from scraper_products.utils.build_url import build_url
-
+import snoop
 
 class BuildCarShopingVtex(scrapy.Spider):
     name = "build_car_shopping_vtex"
-    allowed_domains = ["www.olimpica.com"]
+    allowed_domains = []
     
     URL_CHECKOUT: Final[str] = Template('https://$domain/api/checkout')
     PATH_CREATE_CAR_SHOPPING: Final[str] = "/pub/orderForm"
@@ -24,6 +24,11 @@ class BuildCarShopingVtex(scrapy.Spider):
     }
 
     def __init__(self, domain: str ,data: dict, **kwargs):
+        
+        if isinstance(data, str):
+            data = data.replace("\'", "\"")
+            data = json.loads(data)
+        
         self.build_items = BuildItems.model_validate(data)
         self.URL_CHECKOUT = self.URL_CHECKOUT.substitute(domain=domain)
         super(BuildCarShopingVtex, self).__init__(**kwargs)
@@ -39,9 +44,7 @@ class BuildCarShopingVtex(scrapy.Spider):
             callback=self.post_save_items,
         )
 
-    
     def post_save_items(self, response):
-
         response_json = response.json()
         order_form_id = response_json["orderFormId"]
 
