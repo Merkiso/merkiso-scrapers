@@ -1,4 +1,5 @@
 # lib
+import base64
 from scrapy.crawler import CrawlerProcess
 from string import Template
 from typing import Final
@@ -25,11 +26,12 @@ class BuildCarShopingVtex(scrapy.Spider):
 
     def __init__(self, domain: str ,data: dict, **kwargs):
         
-        if isinstance(data, str):
-            data = data.replace("\'", "\"")
-            data = json.loads(data)
+        # decode base 64 data
+        b64_decode_data = base64.b64decode(data)
+        b64_decode_data = b64_decode_data.decode('utf-8')
+        dict_data = json.loads(b64_decode_data)
         
-        self.build_items = BuildItems.model_validate(data)
+        self.build_items = BuildItems.model_validate(dict_data)
         self.URL_CHECKOUT = self.URL_CHECKOUT.substitute(domain=domain)
         super(BuildCarShopingVtex, self).__init__(**kwargs)
 
@@ -65,7 +67,7 @@ class BuildCarShopingVtex(scrapy.Spider):
             "orderFormId": response.meta["order_form_id"]
         }
         
-        self.URL_CHECKOUT_FINAL = build_url(self.URL_CHECKOUT.replace('/api', ''), order_form_id_param)
+        self.URL_CHECKOUT_FINAL = build_url(self.URL_CHECKOUT.replace('/api/checkout', '/checkout-io'), order_form_id_param)
         print(F"URL_CHECKOUT_FINAL {self.URL_CHECKOUT_FINAL}")
     
 
