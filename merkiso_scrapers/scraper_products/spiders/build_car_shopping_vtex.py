@@ -9,7 +9,6 @@ import json
 # scraper
 from scraper_products.structs.items_car_shop import BuildItems
 from scraper_products.utils.build_url import build_url
-import snoop
 
 class BuildCarShopingVtex(scrapy.Spider):
     name = "build_car_shopping_vtex"
