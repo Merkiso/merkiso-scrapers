@@ -67,7 +67,7 @@ class CarShoppingPipeline:
 
         self.db_connection.insert_one(
             db_name=MONGO_DB,
-            collection_name=COLLECTIONS['shopping_carts'],
+            collection_name=COLLECTIONS['checkout_urls'],
             data=clean_item
         )
 
