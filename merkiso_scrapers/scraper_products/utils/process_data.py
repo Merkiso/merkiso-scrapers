@@ -13,9 +13,9 @@ class ProcessData():
         
         for key, value in data.items():
             
-            if key != 'images' and key != 'avalaible':
+            if key != 'images' and key != 'products':
                 value = value[0]
-            
+
             if isinstance(value, str):
                 field_without_unkwnown_characters = re.sub(r'[^\x20-\x7E]+', '', value)
                 field_bytes = field_without_unkwnown_characters.encode('utf-8', errors='ignore')

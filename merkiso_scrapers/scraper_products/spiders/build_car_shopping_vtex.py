@@ -60,6 +60,7 @@ class BuildCarShopingVtex(scrapy.Spider):
         )
 
     def post_save_items(self, response):
+
         response_json = response.json()
         order_form_id = response_json["orderFormId"]
 
@@ -98,14 +99,20 @@ class BuildCarShopingVtex(scrapy.Spider):
             products_in_shopping_car.append(
                 item_loader_product_in_shopping_car.load_item()
             )
-
+        
         item_loader.add_value("products", products_in_shopping_car)
         item_loader.add_value("url_purchase", url_checkout)
         item_loader.add_value("cart_id", self.cart_id)
         item_loader.add_value("store", self.store)
         item_loader.add_value("coupon", "")
+        
+        item_loader_data = item_loader.load_item()
+        
+        for product in item_loader_data.get("products"):
+            for key, value in product.items():
+                product[key] = value[0]
 
-        yield item_loader.load_item()
+        yield item_loader_data
 
 
 if __name__ == "__main__":
