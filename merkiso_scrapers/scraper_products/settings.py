@@ -21,7 +21,7 @@ NEWSPIDER_MODULE = "scraper_products.spiders"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -97,6 +97,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = "httpcache"
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
+IMAGES_STORE = None
 
 # Set settings whose default value is deprecated to a future-proof value
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
@@ -109,3 +110,5 @@ LOG_LEVEL = "DEBUG"
 load_dotenv()
 
 MONGO_URI= os.getenv("MONGO_URI")
+
+
