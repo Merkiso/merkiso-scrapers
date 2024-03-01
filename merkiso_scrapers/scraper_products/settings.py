@@ -74,6 +74,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     "scraper_products.pipelines.ScrapersSearhsPipeline": 1,
+    "scraper_products.pipelines.CarShoppingPipeline": 2,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

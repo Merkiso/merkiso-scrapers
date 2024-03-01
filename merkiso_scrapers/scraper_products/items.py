@@ -29,13 +29,14 @@ class StoreItem(scrapy.Item):
     url = scrapy.Field()
 
 class ProductInShoppingCarItem(scrapy.Item):
-    product = scrapy.Field()
+    product_id = scrapy.Field()
     quantity = scrapy.Field()
-    amount = scrapy.Field()
     
 class ShoppingCarItem(scrapy.Item):
+    _id = scrapy.Field()
+    cart_id = scrapy.Field()
     store = scrapy.Field()
     products = scrapy.Field()
-    amount = scrapy.Field()
     url_purchase = scrapy.Field()
     coupon = scrapy.Field()
+    user_id = scrapy.Field()

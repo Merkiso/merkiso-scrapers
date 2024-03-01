@@ -20,6 +20,9 @@ class ScrapersSearhsPipeline:
         Write items scraped into file.parquet
         """
 
+        if spider.name == "build_car_shopping_vtex":
+            return item
+
         products = item.get('products')
 
         if products:
@@ -33,7 +36,10 @@ class ScrapersSearhsPipeline:
         return item
     
     def close_spider(self, spider):
-        
+
+        if spider.name == "build_car_shopping_vtex":
+            return spider
+
         if self.items:
         
             self.db_connection.insert_many(
@@ -41,3 +47,28 @@ class ScrapersSearhsPipeline:
                 collection_name=COLLECTIONS['products'],
                 data=self.items
             )
+
+     
+class CarShoppingPipeline:
+
+    db_connection = DbConnection()
+    
+    
+    def process_item(self, item, spider):
+        """
+        Write items scraped into file.parquet
+        """
+        
+        if spider.name in {"scrapers_vtex", "scrapers_vtex_top_searchs"}:
+            return item
+    
+        clean_item = ProcessData.clean_fields(item)
+        clean_item['user_id'] = None
+
+        self.db_connection.insert_one(
+            db_name=MONGO_DB,
+            collection_name=COLLECTIONS['shopping_carts'],
+            data=clean_item
+        )
+
+        return item

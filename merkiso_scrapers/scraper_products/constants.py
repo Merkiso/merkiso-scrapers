@@ -9,6 +9,7 @@ COLLECTIONS = {
     "stores": "stores",
     "products": "products",
     "searchs": "searchs",
+    "shopping_carts": "shopping_carts",
 }
 
 STATUS_SEARCH = {
