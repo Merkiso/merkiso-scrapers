@@ -19,7 +19,7 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
     URL_NEAR_STORES_TEMPLATE: Final[str] = Template('https://$domain/api/checkout/pub/pickup-points?countryCode=$country_code&geoCoordinates=$lat;$lng')
     URL_STORE_ID_BY_COORDINATES: Final[str] = Template('https://$domain/api/checkout/pub/regions?postalCode=$postal_code&country=$country_code&geoCoordinates=$lat;$lng')
 
-    handle_httpstatus_list = [406]
+    handle_httpstatus_list = [406, 500]
 
     def get_stores(self):
         db_connection = DbConnection()
@@ -63,6 +63,8 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
 
 
     def get_near_store(self, response):
+        
+        print(f"RESPONSE {response.text}")
         
         store = response.meta["store"]
         domain = store.get("domain")
