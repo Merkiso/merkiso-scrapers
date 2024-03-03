@@ -12,6 +12,8 @@ COLLECTIONS = {
     "searchs": "searchs",
     "shopping_carts": "shopping_carts",
     "checkout_urls": "checkout_urls",
+    "sucursals": "sucursals",
+    "client_coordinates_sucursals": "client_coordinates_sucursals",
 }
 
 STATUS_SEARCH = {

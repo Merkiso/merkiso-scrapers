@@ -7,6 +7,8 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+from random_user_agent.params import SoftwareName, OperatingSystem, SoftwareType
+from random_user_agent.user_agent import UserAgent
 import os
 from dotenv import load_dotenv
 
@@ -17,8 +19,18 @@ SPIDER_MODULES = ["scraper_products.spiders"]
 NEWSPIDER_MODULE = "scraper_products.spiders"
 
 
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
+# RANDOM USER AGENT
+software_names = [SoftwareName.CHROME.value, SoftwareName.FIREFOX.value]
+operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value]
+software_types = [SoftwareType.WEB_BROWSER.value]
+user_agent_rotator = UserAgent(
+    software_names=software_names,
+    operating_systems=operating_systems,
+    software_types=software_types,
+    limit=1000,
+)
+
+USER_AGENT = user_agent_rotator.get_random_user_agent()
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -44,12 +56,13 @@ ROBOTSTXT_OBEY = False
 DEFAULT_REQUEST_HEADERS = {
   'Accept': '*/*',
   'Accept-Language': 'es-MX,es;q=0.8,en-US;q=0.5,en;q=0.3',
-  'Accept-Encoding': 'gzip, deflate, br',
+  'Accept-Encoding': 'gzip, deflate',
   'X-KL-kfa-Ajax-Request': 'Ajax_Request',
   'Connection': 'keep-alive',
-  'Sec-Fetch-Dest': 'empty',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Site': 'same-origin'
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  "Upgrade-Insecure-Requests": "1",
 }
 
 # Enable or disable spider middlewares
@@ -75,6 +88,7 @@ DOWNLOADER_MIDDLEWARES = {
 ITEM_PIPELINES = {
     "scraper_products.pipelines.ScrapersSearhsPipeline": 1,
     "scraper_products.pipelines.CarShoppingPipeline": 2,
+    "scraper_products.pipelines.VtextSucursalStoresPipeline": 3,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -103,7 +117,7 @@ IMAGES_STORE = None
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
-LOG_ENABLED = True
+LOG_ENABLED = False
 
 LOG_LEVEL = "DEBUG"
 
