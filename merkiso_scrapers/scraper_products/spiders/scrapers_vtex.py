@@ -8,9 +8,9 @@ import scrapy
 
 # app
 from scraper_products.items import ProductListItem, ProductItem
+from scraper_products.constants import COLLECTIONS, MONGO_DB
 from scraper_products.utils.build_url import build_url
 from scraper_products.db.database import DbConnection
-
 
 class ScrapersVtex(scrapy.Spider):
     name = "scrapers_vtex"
@@ -30,24 +30,53 @@ class ScrapersVtex(scrapy.Spider):
 
     handle_httpstatus_list = [406]
 
-    def get_stores(self):
+    def get_stores(
+        self,
+        lng: float = None,
+        lat: float = None
+    ):
+
         db_connection = DbConnection()
-        stores = db_connection.find(
-            db_name="merkiso_db",
-            collection_name="stores",
+        
+        stores = list(db_connection.find(
+            db_name=MONGO_DB,
+            collection_name=COLLECTIONS['stores'],
             query={}
-        )
+        ))
+        
+        if lng and lat:
+            
+            for store in stores:
+                store_sucursal = db_connection.find_one(
+                    db_name=MONGO_DB,
+                    collection_name=COLLECTIONS['client_coordinates_sucursals'],
+                    query={
+                        "store.name": store.get("name"),
+                        "user_coordinates.lat": float(lat),
+                        "user_coordinates.lng": float(lng)
+                    }
+                )
+                
+                if store_sucursal:
+                    store['near_sucursal'] = store_sucursal
+
         return list(stores)
-    
+
+
     def __init__(self, product_name: str, **kwargs):
+
+        lng = kwargs.get("lng", "")
+        lat = kwargs.get("lat", "")
+        
         self.search_data = {
             "search_name": product_name,
-            "stores": [store for store in self.get_stores()],
+            "stores": [store for store in self.get_stores(lng, lat)],
         }
         super(ScrapersVtex, self).__init__(**kwargs)
 
 
     def start_requests(self):
+
         for store in self.search_data['stores']:
 
             query_param_products = {
@@ -56,9 +85,12 @@ class ScrapersVtex(scrapy.Spider):
             
             domain = store.get("domain")
 
-            URL_PRODUCTS = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)
+            url_products = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)
+
+            if "near_sucursal" in store:
+                url_products = f"{url_products}/region-id/{store['near_sucursal']['sucursal_id']}"
             
-            url = build_url(URL_PRODUCTS, query_param_products)
+            url = build_url(url_products, query_param_products)
 
             yield scrapy.Request(
                 url=url,
@@ -130,8 +162,15 @@ class ScrapersVtex(scrapy.Spider):
                         "price": price,
                         "promo_price":promo_price,
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
-                        "store": store
+                        "store": store,
                     }
+                    
+                    if store.get("near_sucursal"):
+                        product_data["sucursal_price"] = {
+                            "sucursal": store["near_sucursal"],
+                            "price": price,
+                            "promo_price": promo_price
+                        }
                     
                     if product_data not in product_items:
                         product_items.append(self.create_item_product(product_data))

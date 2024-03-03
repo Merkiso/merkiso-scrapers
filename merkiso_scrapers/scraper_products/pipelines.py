@@ -29,44 +29,55 @@ class ScrapersSearhsPipeline:
             for product in products:
                 product_item = dict(product)
                 clean_item = ProcessData.clean_fields(product_item)
-                
-                if clean_item not in self.items:
-                    self.items.append(clean_item)
 
-        return item
-    
-    def close_spider(self, spider):
-
-        if spider.name in {"build_car_shopping_vtex", "scrapers_vtex_sucursals_stores"}:
-            return spider
-
-        if self.items:
-            
-            for item in self.items:
-                
                 # if already exist, update list of prices_sucursals
                 find_product = self.db_connection.find_one(
                     db_name=MONGO_DB,
                     collection_name=COLLECTIONS['products'],
-                    query={"product_id": item.get("product_id")}
+                    query={"product_id": clean_item.get("product_id")}
                 )
                 
+                sucursal_price = clean_item.get("sucursal_price")
                 if find_product:
-                    # merge list of sucursal prices
-                    sucursal_prices = find_product.get("sucursal_prices")
-                    sucursal_prices.extend(item.get("sucursal_prices"))
                     
-                    # remove duplicates
-                    sucursal_prices = list({v['sucursal_id']:v for v in sucursal_prices}.values())
+                    if sucursal_price:
+                        
+                        sucursal_prices = find_product.get("sucursal_prices", [])
+                        
+                        # merge list of sucursal prices
+                        sucursal_prices.append(sucursal_price)
+
+                        # remove duplicates
+                        sucursal_prices = ProcessData.remove_duplicates_sucursal_prices(sucursal_prices)
+
+                        self.db_connection.update_one(
+                            db_name=MONGO_DB,
+                            collection_name=COLLECTIONS['products'],
+                            query={"product_id": clean_item.get("product_id")},
+                            data={"$set": {"sucursal_prices": sucursal_prices}}
+                        )
+
+                    else:
+                        self.db_connection.update_one(
+                            db_name=MONGO_DB,
+                            collection_name=COLLECTIONS['products'],
+                            query={"product_id": clean_item.get("product_id")},
+                            data={"$set": clean_item}
+                        )
                     
-                    self.db_connection.update_one(
+                else:
+                    clean_item['sucursal_prices'] = [clean_item.get("sucursal_price")]
+                    del clean_item['sucursal_price']
+                    self.db_connection.insert_one(
                         db_name=MONGO_DB,
                         collection_name=COLLECTIONS['products'],
-                        query={"product_id": item.get("product_id")},
-                        data={"$set": {"sucursal_prices": sucursal_prices}}
+                        data=clean_item
                     )
-
      
+        return item
+    
+
+
 class CarShoppingPipeline:
 
     db_connection = DbConnection()

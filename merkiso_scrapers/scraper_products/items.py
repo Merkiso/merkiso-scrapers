@@ -21,6 +21,7 @@ class ProductItem(scrapy.Item):
     images = scrapy.Field()
     store = scrapy.Field()
     search_name = scrapy.Field()
+    sucursal_price = scrapy.Field()
     
     
 class StoreItem(scrapy.Item):

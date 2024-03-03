@@ -31,4 +31,14 @@ class ProcessData():
             data[key] = value
             # missing validate fields to clean double or float or int
         return data
+    
+    @classmethod
+    def remove_duplicates_sucursal_prices(cls, sucursal_prices):
         
+        unique_sucursal_prices = []
+        
+        for sucursal_price in sucursal_prices:
+            if sucursal_price not in unique_sucursal_prices:
+                unique_sucursal_prices.append(sucursal_price)
+        
+        return unique_sucursal_prices
