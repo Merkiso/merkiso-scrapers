@@ -56,7 +56,7 @@ class CarShoppingPipeline:
     
     def process_item(self, item, spider):
         """
-        Write items scraped into file.parquet
+        Write items scraped into db
         """
         
         if spider.name in {"scrapers_vtex", "scrapers_vtex_top_searchs"}:
@@ -64,6 +64,23 @@ class CarShoppingPipeline:
     
         clean_item = ProcessData.clean_fields(item)
         clean_item['user_id'] = None
+
+        # check if already urls in cart, update
+        find_checkout_urls_of_cart = self.db_connection.find(
+            db_name=MONGO_DB,
+            collection_name=COLLECTIONS['checkout_urls'],
+            query={
+                "cart_id": clean_item.get("cart_id"),
+                "store.name": clean_item.get("store").get("name"),
+            }
+        )
+        
+        if find_checkout_urls_of_cart:
+            self.db_connection.delete_one(
+                db_name=MONGO_DB,
+                collection_name=COLLECTIONS['checkout_urls'],
+                query={"cart_id": clean_item.get("cart_id")},
+            )
 
         self.db_connection.insert_one(
             db_name=MONGO_DB,

@@ -42,3 +42,7 @@ class DbConnection:
     def update_one(self, db_name: str, collection_name: str, query: dict, data: dict):
         collection = self.get_collection(db_name, collection_name)
         collection.update_one(query, data, upsert=True)
+        
+    def delete_one(self, db_name: str, collection_name: str, query: dict):
+        collection = self.get_collection(db_name, collection_name)
+        collection.delete_one(query)
