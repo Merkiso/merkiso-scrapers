@@ -154,6 +154,7 @@ class VtextSucursalStoresPipeline:
                 "sucursal_id": clean_item.get("sucursal_id"),
                 "sucursale_name": clean_item.get("name"),
                 "coordenates": user_coordinates,
+                "store": clean_item.get("store"),
             }
             
             find_coordenates_sucursals = self.db_connection.find_one(
