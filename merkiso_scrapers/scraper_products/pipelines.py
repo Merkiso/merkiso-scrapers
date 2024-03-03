@@ -157,7 +157,7 @@ class VtextSucursalStoresPipeline:
             # create coordenates_sucursals
             coordenates_sucursals = {
                 "sucursal_id": clean_item.get("sucursal_id"),
-                "sucursale_name": clean_item.get("name"),
+                "sucursal_name": clean_item.get("name"),
                 "user_coordinates": user_coordinates,
                 "sucursal_coordenates": sucursal_coordenates,
                 "store": clean_item.get("store"),
