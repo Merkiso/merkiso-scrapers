@@ -149,11 +149,17 @@ class VtextSucursalStoresPipeline:
                     data=clean_item
                 )
             
+            sucursal_coordenates = {
+                'lat': clean_item.get('lat'),
+                'lng': clean_item.get('lng')
+            }
+            
             # create coordenates_sucursals
             coordenates_sucursals = {
                 "sucursal_id": clean_item.get("sucursal_id"),
                 "sucursale_name": clean_item.get("name"),
-                "coordenates": user_coordinates,
+                "user_coordinates": user_coordinates,
+                "sucursal_coordenates": sucursal_coordenates,
                 "store": clean_item.get("store"),
             }
             
@@ -163,7 +169,8 @@ class VtextSucursalStoresPipeline:
                 query={
                     "sucursal_id": clean_item.get("sucursal_id"),
                     "sucursale_name": clean_item.get("name"),
-                    "coordenates": user_coordinates,
+                    "sucursal_coordenates": sucursal_coordenates,
+                    "user_coordinates": user_coordinates,
                 }
             )
 

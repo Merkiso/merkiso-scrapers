@@ -115,8 +115,8 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
             store_pickup = {
                 "sucursal_id": sucural_id,
                 "name": f"{store['name']}-{full_address}",
-                "lng": store['pickup']['pickupPoint']['address']['geoCoordinates'][0],
-                "lat": store['pickup']['pickupPoint']['address']['geoCoordinates'][1],
+                "lat": store['pickup']['pickupPoint']['address']['geoCoordinates'][0],
+                "lng": store['pickup']['pickupPoint']['address']['geoCoordinates'][1],
             }
             
             del store['pickup']
@@ -130,8 +130,8 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
             
             item_loader_data = item_loader.load_item()
             item_loader_data['user_coordinates'] = {
-                "lat": self.data['lat'],
-                "lng": self.data['lng']
+                "lat": float(self.data['lat']),
+                "lng": float(self.data['lng'])
             }
             
             yield item_loader_data
