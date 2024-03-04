@@ -8,9 +8,10 @@ import scrapy
 
 # app
 from scraper_products.items import ProductListItem, ProductItem
-from scraper_products.constants import COLLECTIONS, MONGO_DB
 from scraper_products.utils.build_url import build_url
 from scraper_products.db.database import DbConnection
+from scraper_products.constants import COLLECTIONS
+from scraper_products.settings import MONGO_DB
 
 class ScrapersVtex(scrapy.Spider):
     name = "scrapers_vtex"
@@ -23,7 +24,6 @@ class ScrapersVtex(scrapy.Spider):
         "query": "product_name",
         "hideUnavailableItems": "true",
         "sort": "price:asc",
-        "count": COUNT_PRODUCTS_PER_PAGE
     }
 
     STORE: str = "store"
@@ -80,7 +80,9 @@ class ScrapersVtex(scrapy.Spider):
         for store in self.search_data['stores']:
 
             query_param_products = {
-                "query": self.search_data['search_name']
+                **self.QUERY_PARAM_PRODUCTS,
+                "query": self.search_data['search_name'],
+                "count": self.COUNT_PRODUCTS_PER_PAGE,
             }
             
             domain = store.get("domain")

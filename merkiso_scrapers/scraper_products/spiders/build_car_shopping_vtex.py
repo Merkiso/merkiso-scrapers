@@ -8,11 +8,11 @@ import base64
 import json
 
 # scraper
-from scraper_products.constants import COLLECTIONS, MONGO_DB, FIELD_NAME_CAR_ITEMS
-from scraper_products.items import ProductInShoppingCarItem, ShoppingCarItem
-from scraper_products.structs.items_car_shop import BuildItems
+from scraper_products.constants import COLLECTIONS, FIELD_NAME_CAR_ITEMS
 from scraper_products.utils.build_url import build_url
 from scraper_products.db.database import DbConnection
+from scraper_products.items import ShoppingCarItem
+from scraper_products.settings import MONGO_DB
 
 
 class BuildCarShopingVtex(scrapy.Spider):

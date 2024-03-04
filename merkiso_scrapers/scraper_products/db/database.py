@@ -8,7 +8,7 @@ from scraper_products.settings import MONGO_URI
 class DbConnection:
 
     def __init__(self) -> None:
-        self.client = MongoClient(MONGO_URI)
+        self.client = MongoClient("mongodb+srv://merki057:YqCBspO4aFnl7eDa@cluster0.qtwthhb.mongodb.net/merkiso_db_dev?retryWrites=true&w=majority&appName=Cluster0")
 
     def get_db(self, db_name: str):
         return self.client[db_name]

@@ -13,15 +13,21 @@ from scraper_products.utils.build_url import build_url
 
 class ScrapersVtexTopSearchs(ScrapersVtex):
     name = "scrapers_vtex_top_searchs"
-
     URL_TOP_SEARCHS_TEMPLATE: Final[str] = Template('https://$domain/api/io/_v/api/intelligent-search/top_searches')
+    COUNT_PRODUCTS_PER_PAGE: Final[int] = 1
     
     def __init__(self, **kwargs):
-        super(ScrapersVtexTopSearchs, self).__init__("",**kwargs)
+        self.lng = kwargs.get("lng")
+        self.lat = kwargs.get("lat")
+
+        super(ScrapersVtexTopSearchs, self).__init__(
+            "",
+            **kwargs
+        )
 
     def start_requests(self):
         
-        stores = [store for store in self.get_stores()]
+        stores = [store for store in self.get_stores(self.lng, self.lat)]
         
         for store in stores:
 
@@ -49,7 +55,8 @@ class ScrapersVtexTopSearchs(ScrapersVtex):
                 term = top_search["term"]
 
                 query_param_products = {
-                    "query": term
+                    "query": term,
+                    "count": self.COUNT_PRODUCTS_PER_PAGE,
                 }
 
                 URL_PRODUCTS = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)

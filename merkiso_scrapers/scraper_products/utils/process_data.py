@@ -1,5 +1,6 @@
 # Description: This file contains the class that process the data from the provider
 
+from itertools import groupby, zip_longest
 import re
 import unicodedata
 
@@ -42,3 +43,21 @@ class ProcessData():
                 unique_sucursal_prices.append(sucursal_price)
         
         return unique_sucursal_prices
+    
+    @classmethod
+    def order_by_product_by_alternate_store(cls, products: list[dict]) -> list[dict]:
+        
+        ordered_products = []
+        
+        # Sort the list by store name (this is necessary for groupby to work correctly)
+        products.sort(key=lambda x: x['store']['name'])
+
+        group_by_store_dict = {store_name: list(group) for store_name, group in groupby(products, key=lambda x: x['store']['name'])}
+
+        # Iterate over all lists at the same time
+        for products_by_store in zip_longest(*group_by_store_dict.values()):
+            for product in products_by_store:
+                if product:
+                    ordered_products.append(product)
+                    
+        return ordered_products

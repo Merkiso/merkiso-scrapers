@@ -5,7 +5,6 @@ FULL_PATH_PARQUET_SEARCHS = f'{PATH_PARQUETS}searchs.parquet'
 FILENAME_PRODUCTS = 'products'
 FIELD_NAME_CAR_ITEMS = "orderItems"
 
-MONGO_DB = "merkiso_db"
 COLLECTIONS = {
     "stores": "stores",
     "products": "products",
