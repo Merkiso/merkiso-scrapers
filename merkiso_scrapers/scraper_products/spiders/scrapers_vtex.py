@@ -166,7 +166,7 @@ class ScrapersVtex(scrapy.Spider):
                     
                     if not price:
                         continue
-
+                    
                     product_data = {
                         "search_name" : search_data["search_name"],
                         "product_id": product_item["itemId"],
@@ -188,6 +188,8 @@ class ScrapersVtex(scrapy.Spider):
                             "price": price,
                             "promo_price": promo_price
                         }
+                    
+                    del product_data["store"]["near_sucursal"]
                     
                     if product_data not in product_items:
                         product_items.append(self.create_item_product(product_data))
