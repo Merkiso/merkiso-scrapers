@@ -22,6 +22,7 @@ class ProductItem(scrapy.Item):
     store = scrapy.Field()
     search_name = scrapy.Field()
     sucursal_price = scrapy.Field()
+    from_top_search = scrapy.Field()
     
     
 class StoreItem(scrapy.Item):
