@@ -50,8 +50,6 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
                 lat=self.data['lat'],
                 lng=self.data['lng']
             )
-            
-            print(f"url_near_stores {url_near_stores}")
 
             yield scrapy.Request(
                 url=url_near_stores,
@@ -63,9 +61,7 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
 
 
     def get_near_store(self, response):
-        
-        print(f"RESPONSE {response.text}")
-        
+
         store = response.meta["store"]
         domain = store.get("domain")
         
@@ -90,8 +86,7 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
             postal_code=postal_code
         )
         
-        print(f"url_store_id {url_store_id}")
-        
+
         yield scrapy.Request(
             url=url_store_id,
             method="GET",
@@ -101,9 +96,7 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
 
 
     def parse(self, response):
-        
-        print(f"response ids sucursals {response.json()}")
-        
+
         try:
             store = response.meta["store"]
             response_json = response.json()

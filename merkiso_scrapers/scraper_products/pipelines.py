@@ -41,6 +41,9 @@ class ScrapersSearhsPipeline:
         for product in products:
             
             print(f"--- product {product.get('name')} ---")
+            print(f"--- store {product.get('store').get('name')} ---")
+            
+            print(f"--- sucursal {product.get('sucursal_price')} ---")
             
             product['created_at'] = datetime.datetime.now().isoformat()
             
@@ -48,7 +51,10 @@ class ScrapersSearhsPipeline:
             find_product = self.db_connection.find_one(
                 db_name=MONGO_DB,
                 collection_name=COLLECTIONS['products'],
-                query={"product_id": product.get("product_id")}
+                query={
+                    "product_id": product.get("product_id"),
+                    "store.name": product.get("store").get("name"),
+                }
             )
             
             sucursal_price = product.get("sucursal_price")
@@ -67,7 +73,10 @@ class ScrapersSearhsPipeline:
                     self.db_connection.update_one(
                         db_name=MONGO_DB,
                         collection_name=COLLECTIONS['products'],
-                        query={"product_id": product.get("product_id")},
+                        query={
+                            "product_id": product.get("product_id"),
+                            "store.name": product.get("store").get("name"),
+                        },
                         data={"$set": {"sucursal_prices": sucursal_prices}}
                     )
 

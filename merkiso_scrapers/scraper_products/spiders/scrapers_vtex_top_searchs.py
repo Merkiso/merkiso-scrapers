@@ -17,8 +17,7 @@ class ScrapersVtexTopSearchs(ScrapersVtex):
     COUNT_PRODUCTS_PER_PAGE: Final[int] = 1
     
     def __init__(self, **kwargs):
-        self.lng = kwargs.get("lng")
-        self.lat = kwargs.get("lat")
+        self.sucursal_ids = kwargs.get("sucursal_ids")
 
         super(ScrapersVtexTopSearchs, self).__init__(
             "",
@@ -27,7 +26,7 @@ class ScrapersVtexTopSearchs(ScrapersVtex):
 
     def start_requests(self):
         
-        stores = [store for store in self.get_stores(self.lng, self.lat)]
+        stores = [store for store in self.get_stores(self.sucursal_ids)]
         
         for store in stores:
 
@@ -67,7 +66,7 @@ class ScrapersVtexTopSearchs(ScrapersVtex):
                     url=url,
                     method="GET",
                     callback=self.parse,
-                    meta={"store": store},
+                    meta={"store": store, "from_top_search": True},
                     dont_filter=True
                 )
                 

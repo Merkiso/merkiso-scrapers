@@ -46,3 +46,7 @@ class DbConnection:
     def delete_one(self, db_name: str, collection_name: str, query: dict):
         collection = self.get_collection(db_name, collection_name)
         collection.delete_one(query)
+        
+    def count(self, db_name: str, collection_name: str, query: dict):
+        collection = self.get_collection(db_name, collection_name)
+        return collection.count_documents(query)

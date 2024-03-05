@@ -1,4 +1,6 @@
 # lib
+import base64
+import json
 from scrapy.crawler import CrawlerProcess
 from itemloaders import ItemLoader
 from string import Template
@@ -12,6 +14,7 @@ from scraper_products.utils.build_url import build_url
 from scraper_products.db.database import DbConnection
 from scraper_products.constants import COLLECTIONS
 from scraper_products.settings import MONGO_DB
+from bson.objectid import ObjectId
 
 class ScrapersVtex(scrapy.Spider):
     name = "scrapers_vtex"
@@ -32,45 +35,55 @@ class ScrapersVtex(scrapy.Spider):
 
     def get_stores(
         self,
-        lng: float = None,
-        lat: float = None
-    ):
+        ids: str,
+    ):  
 
         db_connection = DbConnection()
-        
         stores = list(db_connection.find(
             db_name=MONGO_DB,
             collection_name=COLLECTIONS['stores'],
             query={}
         ))
-        
-        if lng and lat:
-            
-            for store in stores:
-                store_sucursal = db_connection.find_one(
-                    db_name=MONGO_DB,
-                    collection_name=COLLECTIONS['client_coordinates_sucursals'],
-                    query={
-                        "store.name": store.get("name"),
-                        "user_coordinates.lat": float(lat),
-                        "user_coordinates.lng": float(lng)
-                    }
-                )
-                
-                if store_sucursal:
-                    store['near_sucursal'] = store_sucursal
 
-        return list(stores)
+        if ids:
+
+            #decode ids from base64
+            decode_ids_b64 = base64.b64decode(ids)
+            decode_ids_b64 = decode_ids_b64.decode('utf-8')
+            decode_ids_b64 = json.loads(decode_ids_b64)
+            ids = [ObjectId(_id) for _id in decode_ids_b64]
+            
+            stores_sucursals = list(db_connection.find(
+                db_name=MONGO_DB,
+                collection_name=COLLECTIONS['sucursals'],
+                query={
+                    "_id": {"$in": ids}
+                }
+            ))
+            
+            if stores_sucursals:
+                for store in stores:
+                    store_sucursal = list(
+                        filter(
+                            lambda x: x["store"]["_id"] == store["_id"],
+                            stores_sucursals
+                        )
+                    )
+                    
+                    if store_sucursal:
+                        store_sucursal = store_sucursal[0]
+                        store["near_sucursal"] = store_sucursal
+
+        return stores
 
 
     def __init__(self, product_name: str, **kwargs):
-
-        lng = kwargs.get("lng", "")
-        lat = kwargs.get("lat", "")
+        
+        sucursal_ids = kwargs.get("sucursal_ids")
         
         self.search_data = {
             "search_name": product_name,
-            "stores": [store for store in self.get_stores(lng, lat)],
+            "stores": [store for store in self.get_stores(sucursal_ids)],
         }
         super(ScrapersVtex, self).__init__(**kwargs)
 
@@ -102,9 +115,10 @@ class ScrapersVtex(scrapy.Spider):
             )
 
     def parse(self, response):
-        
+
         try:
             store = response.meta["store"]
+            from_top_search = response.meta.get("from_top_search", False)
             
             query_search = response.url.split("?")[1]
             query_search = query_search.split("&")[0]
@@ -165,6 +179,7 @@ class ScrapersVtex(scrapy.Spider):
                         "promo_price":promo_price,
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
                         "store": store,
+                        "from_top_search": from_top_search
                     }
                     
                     if store.get("near_sucursal"):
