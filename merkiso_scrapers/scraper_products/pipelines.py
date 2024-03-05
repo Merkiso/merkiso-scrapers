@@ -152,9 +152,6 @@ class VtextSucursalStoresPipeline:
 
             if spider.name in {"build_car_shopping_vtex","scrapers_vtex", "scrapers_vtex_top_searchs"}:
                 return item
-
-            user_coordinates = item.get("user_coordinates")
-            del item['user_coordinates']
             
             clean_item = ProcessData.clean_fields(item)
 
@@ -179,38 +176,6 @@ class VtextSucursalStoresPipeline:
                     db_name=MONGO_DB,
                     collection_name=COLLECTIONS['sucursals'],
                     data=clean_item
-                )
-            
-            sucursal_coordenates = {
-                'lat': clean_item.get('lat'),
-                'lng': clean_item.get('lng')
-            }
-            
-            # create coordenates_sucursals
-            coordenates_sucursals = {
-                "sucursal_id": clean_item.get("sucursal_id"),
-                "sucursal_name": clean_item.get("name"),
-                "user_coordinates": user_coordinates,
-                "sucursal_coordenates": sucursal_coordenates,
-                "store": clean_item.get("store"),
-            }
-            
-            find_coordenates_sucursals = self.db_connection.find_one(
-                db_name=MONGO_DB,
-                collection_name=COLLECTIONS['client_coordinates_sucursals'],
-                query={
-                    "sucursal_id": clean_item.get("sucursal_id"),
-                    "sucursale_name": clean_item.get("name"),
-                    "sucursal_coordenates": sucursal_coordenates,
-                    "user_coordinates": user_coordinates,
-                }
-            )
-
-            if not find_coordenates_sucursals:
-                self.db_connection.insert_one(
-                    db_name=MONGO_DB,
-                    collection_name=COLLECTIONS['client_coordinates_sucursals'],
-                    data=coordenates_sucursals
                 )
 
             return item
