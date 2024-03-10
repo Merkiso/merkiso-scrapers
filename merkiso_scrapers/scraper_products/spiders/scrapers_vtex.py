@@ -189,7 +189,8 @@ class ScrapersVtex(scrapy.Spider):
                             "promo_price": promo_price
                         }
                     
-                    del product_data["store"]["near_sucursal"]
+                    if "near_sucursal" in product_data["store"]:
+                        del product_data["store"]["near_sucursal"]
                     
                     if product_data not in product_items:
                         product_items.append(self.create_item_product(product_data))
