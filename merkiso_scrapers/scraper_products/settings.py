@@ -9,8 +9,8 @@
 
 from random_user_agent.params import SoftwareName, OperatingSystem, SoftwareType
 from random_user_agent.user_agent import UserAgent
-import os
 from dotenv import load_dotenv
+import os
 
 
 BOT_NAME = "scraper_products"

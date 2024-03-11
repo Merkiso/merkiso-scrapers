@@ -7,8 +7,7 @@ import traceback
 import scrapy
 
 # app
-from scraper_products.items import ProductListItem, ProductItem, SucursalStoreItem
-from scraper_products.utils.build_url import build_url
+from scraper_products.items import ProductItem, SucursalStoreItem
 from scraper_products.db.database import DbConnection
 
 

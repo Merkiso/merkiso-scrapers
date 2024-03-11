@@ -1,8 +1,7 @@
-# Description: This file contains the class that process the data from the provider
-
 from itertools import groupby, zip_longest
-import re
 import unicodedata
+import re
+
 
 class ProcessData():
 

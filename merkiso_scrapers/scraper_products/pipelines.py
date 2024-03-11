@@ -1,8 +1,5 @@
 # lib
 import datetime
-from io import BytesIO
-import traceback
-import json
 
 # scraper
 from scraper_products.db.database import DbConnection
