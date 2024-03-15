@@ -6,6 +6,7 @@ from scraper_products.db.database import DbConnection
 from scraper_products.constants import COLLECTIONS
 from scraper_products.settings import MONGO_DB
 from .utils.process_data import ProcessData
+import re
 
 
 class ScrapersSearhsPipeline:
@@ -28,8 +29,10 @@ class ScrapersSearhsPipeline:
             for product in products:
                 product_item = dict(product)
                 clean_item = ProcessData.clean_fields(product_item)
-                self.items.append(clean_item)
-     
+                validate_name_filter = re.search(rf'\b{re.escape(clean_item['search_name'])}\b', clean_item['name'], re.IGNORECASE)
+                if validate_name_filter is not None:
+                    self.items.append(clean_item)
+
         return item
     
     def close_spider(self, spider):
