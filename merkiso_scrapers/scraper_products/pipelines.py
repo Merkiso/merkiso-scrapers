@@ -29,8 +29,8 @@ class ScrapersSearhsPipeline:
             for product in products:
                 product_item = dict(product)
                 clean_item = ProcessData.clean_fields(product_item)
-                search_term = item.get('search_term')
-                product_name = clean_item.get['name']
+                search_term = clean_item['search_name']
+                product_name = clean_item['name']
                 validate_name_filter = re.search(rf'\b{re.escape(search_term)}\b', product_name, re.IGNORECASE)
                 if validate_name_filter is not None:
                     self.items.append(clean_item)
