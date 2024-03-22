@@ -126,19 +126,23 @@ class CarShoppingPipeline:
                 "store.name": clean_item.get("store").get("name"),
             }
         )
-        
+        # get products
         if find_checkout_urls_of_cart:
-            self.db_connection.delete_one(
+            self.db_connection.update_one(
                 db_name=MONGO_DB,
                 collection_name=COLLECTIONS['checkout_urls'],
-                query={"cart_id": clean_item.get("cart_id")},
+                query={
+                    "cart_id": clean_item.get("cart_id"),
+                    "store.name": clean_item.get("store").get("name"),
+                },
+                data={"$set": clean_item}
             )
-
-        self.db_connection.insert_one(
-            db_name=MONGO_DB,
-            collection_name=COLLECTIONS['checkout_urls'],
-            data=clean_item
-        )
+        else:
+            self.db_connection.insert_one(
+                db_name=MONGO_DB,
+                collection_name=COLLECTIONS['checkout_urls'],
+                data=clean_item
+            )
 
         return item
 
