@@ -1,7 +1,7 @@
 
 def wpp_url(data):
     if data['store']['phone']:
-        message_initial = f"Hola {data['store']['name']} quiero hacer un pedido en la dirección {"direccion"}%0A"
+        message_initial = f"Hola {data['store']['name']} quiero hacer un pedido en la dirección ...%0A"
         product_names = []
         product_names.append(message_initial.replace(" ", "%20"))
         if data['products']:
