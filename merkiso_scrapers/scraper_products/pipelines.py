@@ -6,6 +6,7 @@ from scraper_products.db.database import DbConnection
 from scraper_products.constants import COLLECTIONS
 from scraper_products.settings import MONGO_DB
 from .utils.process_data import ProcessData
+from .utils.wapp_url import wpp_url
 import re
 
 
@@ -127,6 +128,8 @@ class CarShoppingPipeline:
             }
         )
         # get products
+        wp_url = wpp_url(clean_item)
+        clean_item['url_purchase_wp'] = wp_url
         if find_checkout_urls_of_cart:
             self.db_connection.update_one(
                 db_name=MONGO_DB,

@@ -42,6 +42,7 @@ class ShoppingCarItem(scrapy.Item):
     url_purchase = scrapy.Field()
     coupon = scrapy.Field()
     user_id = scrapy.Field()
+    url_purchase_wp = scrapy.Field()
 
 class SucursalStoreItem(scrapy.Item):
     _id = scrapy.Field()
