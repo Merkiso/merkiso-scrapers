@@ -124,5 +124,5 @@ LOG_LEVEL = "DEBUG"
 load_dotenv()
 
 MONGO_URI= os.getenv("MONGO_URI")
-MONGO_DB = "merkiso_db"
+MONGO_DB = os.getenv("MONGO_DB")
 
