@@ -66,6 +66,9 @@ class ScrapersVtexSucursalStores(scrapy.Spider):
         
         response_json = response.json()
         stores = response_json["items"]
+        
+        if not stores:
+            return
 
         store_more_near = stores[0]
 
