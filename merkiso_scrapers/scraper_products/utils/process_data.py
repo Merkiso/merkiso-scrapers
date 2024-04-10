@@ -15,6 +15,10 @@ class ProcessData():
             
             if key != 'images' and key != 'products':
                 value = value[0] if isinstance(value, list) else value
+                
+            if key == 'url':
+                store_domain = data.get('store')[0].get('url')
+                value = cls.clean_url(store_domain, value)
 
             if isinstance(value, str):
                 field_without_unkwnown_characters = re.sub(r'[^\x20-\x7E]+', '', value)
@@ -29,7 +33,10 @@ class ProcessData():
 
                 data[key] = unicodedata.normalize('NFKD', field_without_html.strip())
             data[key] = value
-            # missing validate fields to clean double or float or int
+                        
+        if data['promo_price'] == data['price']:
+            data['promo_price'] = None
+
         return data
     
     @classmethod
@@ -60,3 +67,12 @@ class ProcessData():
                     ordered_products.append(product)
                     
         return ordered_products
+    
+    @classmethod
+    def clean_url(cls, store_domain: str, product_url: str):
+
+        path = "/{}".format(product_url) if product_url[0] != '/' else product_url
+        url = f"{store_domain}{path}"
+        url = re.sub(r'(https?://[^\s]+)(https?://[^\s]+)', r'\2', url)
+        
+        return url
