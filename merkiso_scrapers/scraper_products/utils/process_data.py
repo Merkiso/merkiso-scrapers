@@ -33,9 +33,10 @@ class ProcessData():
 
                 data[key] = unicodedata.normalize('NFKD', field_without_html.strip())
             data[key] = value
-                        
-        if data['promo_price'] == data['price']:
-            data['promo_price'] = None
+        
+        if 'promo_price' in data:
+            if data['promo_price'] == data['price']:
+                data['promo_price'] = None
 
         return data
     
