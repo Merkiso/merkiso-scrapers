@@ -131,7 +131,7 @@ class ScrapersVtex(scrapy.Spider):
             item_loader = ItemLoader(item=ProductListItem())
             
             search_data = self.search_data.copy()
-            search_data['search_name'] = query_search
+            search_data['search_name'] = query_search.replace("+", " ")
             item_loader.add_value("search_data", search_data)
             
             for product in products:
