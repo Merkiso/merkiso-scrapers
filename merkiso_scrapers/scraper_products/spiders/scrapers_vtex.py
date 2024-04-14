@@ -14,7 +14,6 @@ import asyncio
 
 # app
 from scraper_products.items import ProductListItem, ProductItem
-from scraper_products.utils.process_data import ProcessData
 from scraper_products.utils.build_url import build_url
 from scraper_products.db.database import DbConnection
 from scraper_products.constants import COLLECTIONS
@@ -148,11 +147,7 @@ class ScrapersVtex(scrapy.Spider):
             for product in products:
                 products_items = product.get("items", [])
                 
-                calculate_similary = ProcessData.calculate_similary(search_data["search_term"], product["productName"])
-                
-                if calculate_similary < self.umbral:
-                    continue
-                
+
                 for product_item in products_items:
 
                     price = 0
