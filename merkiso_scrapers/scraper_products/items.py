@@ -8,6 +8,7 @@ import scrapy
 class ProductListItem(scrapy.Item):
     products = scrapy.Field()
     search_data = scrapy.Field()
+    store = scrapy.Field()
 
 class ProductItem(scrapy.Item):
     name = scrapy.Field()
@@ -20,7 +21,7 @@ class ProductItem(scrapy.Item):
     promo_price = scrapy.Field()
     images = scrapy.Field()
     store = scrapy.Field()
-    search_name = scrapy.Field()
+    search_term = scrapy.Field()
     sucursal_price = scrapy.Field()
     from_top_search = scrapy.Field()
     

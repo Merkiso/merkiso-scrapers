@@ -1,27 +1,33 @@
 # lib
 import base64
 import json
+import time
 from scrapy.crawler import CrawlerProcess
 from itemloaders import ItemLoader
 from string import Template
 from typing import Final
+import threading
 import traceback
 import scrapy
+import asyncio
+
 
 # app
 from scraper_products.items import ProductListItem, ProductItem
+from scraper_products.utils.process_data import ProcessData
 from scraper_products.utils.build_url import build_url
 from scraper_products.db.database import DbConnection
 from scraper_products.constants import COLLECTIONS
 from scraper_products.settings import MONGO_DB
 from bson.objectid import ObjectId
 
+
 class ScrapersVtex(scrapy.Spider):
     name = "scrapers_vtex"
     allowed_domains = []
 
     URL_PRODUCTS_TEMPLATE: Final[str] = Template('https://$domain/api/io/_v/api/intelligent-search/product_search')
-    COUNT_PRODUCTS_PER_PAGE: Final[int] = 10
+    COUNT_PRODUCTS_PER_PAGE: Final[int] = 100
     
     QUERY_PARAM_PRODUCTS: Final[dict] = {
         "query": "product_name",
@@ -32,7 +38,9 @@ class ScrapersVtex(scrapy.Spider):
     STORE: str = "store"
 
     handle_httpstatus_list = [406]
-
+    
+    umbral = 0.50
+    
     def get_stores(
         self,
         ids: str,
@@ -82,11 +90,11 @@ class ScrapersVtex(scrapy.Spider):
         sucursal_ids = kwargs.get("sucursal_ids")
         
         self.search_data = {
-            "search_name": product_name,
+            "search_term": product_name,
             "stores": [store for store in self.get_stores(sucursal_ids)],
         }
+        
         super(ScrapersVtex, self).__init__(**kwargs)
-
 
     def start_requests(self):
 
@@ -94,7 +102,7 @@ class ScrapersVtex(scrapy.Spider):
 
             query_param_products = {
                 **self.QUERY_PARAM_PRODUCTS,
-                "query": self.search_data['search_name'],
+                "query": self.search_data['search_term'],
                 "count": self.COUNT_PRODUCTS_PER_PAGE,
             }
             
@@ -107,13 +115,14 @@ class ScrapersVtex(scrapy.Spider):
             
             url = build_url(url_products, query_param_products)
 
+            
             yield scrapy.Request(
                 url=url,
                 method="GET",
                 callback=self.parse,
                 meta={"store": store}
             )
-
+    
     def parse(self, response):
 
         try:
@@ -131,11 +140,18 @@ class ScrapersVtex(scrapy.Spider):
             item_loader = ItemLoader(item=ProductListItem())
             
             search_data = self.search_data.copy()
-            search_data['search_name'] = query_search.replace("+", " ")
+            search_data['search_term'] = query_search.replace("+", " ")
+            search_data["store"] = store
+
             item_loader.add_value("search_data", search_data)
             
             for product in products:
                 products_items = product.get("items", [])
+                
+                calculate_similary = ProcessData.calculate_similary(search_data["search_term"], product["productName"])
+                
+                if calculate_similary < self.umbral:
+                    continue
                 
                 for product_item in products_items:
 
@@ -168,7 +184,7 @@ class ScrapersVtex(scrapy.Spider):
                         continue
                     
                     product_data = {
-                        "search_name" : search_data["search_name"],
+                        "search_term" : search_data["search_term"],
                         "product_id": product_item["itemId"],
                         "name": product_item["name"],
                         "description": product_item["complementName"],
@@ -182,19 +198,9 @@ class ScrapersVtex(scrapy.Spider):
                         "from_top_search": from_top_search
                     }
                     
-                    if store.get("near_sucursal"):
-                        product_data["sucursal_price"] = {
-                            "sucursal": store["near_sucursal"],
-                            "price": price,
-                            "promo_price": promo_price
-                        }
-                    
-                    if "near_sucursal" in product_data["store"]:
-                        del product_data["store"]["near_sucursal"]
-                    
                     if product_data not in product_items:
                         product_items.append(self.create_item_product(product_data))
-                
+
             item_loader.add_value("products", product_items)
             
             yield item_loader.load_item()
@@ -210,8 +216,6 @@ class ScrapersVtex(scrapy.Spider):
             item_loader.add_value(key, value)
 
         return item_loader.load_item()
-
-    
 
 if __name__ == "__main__":
 

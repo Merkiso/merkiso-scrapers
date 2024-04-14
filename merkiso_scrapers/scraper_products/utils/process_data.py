@@ -1,12 +1,14 @@
+from sklearn.metrics.pairwise import cosine_similarity
 from itertools import groupby, zip_longest
 import unicodedata
+import spacy
 import re
-
 
 class ProcessData():
 
     _RE_REMOVE_STYLE_TAG = re.compile(r"(?s)<style>.+</style>")
     _RE_REMOVE_HTML_DATA = re.compile(r'<[^>]+>')
+    nlp = spacy.load("es_core_news_md")
     
     @classmethod
     def clean_fields(cls, data):
@@ -77,3 +79,16 @@ class ProcessData():
         url = re.sub(r'(https?://[^\s]+)(https?://[^\s]+)', r'\2', url)
         
         return url
+
+    @classmethod
+    def calculate_similary(cls, search_term, name):
+        doc_consult = cls.nlp(search_term)
+        doc_result = cls.nlp(name)
+        return cosine_similarity([doc_consult.vector], [doc_result.vector])[0][0]
+
+    @classmethod
+    def group_by_store(cls, products: list[dict]) -> list[dict]:
+        
+        group_by_store_dict = {store_name: list(group) for store_name, group in groupby(products, key=lambda x: x['store']['name'])}
+        
+        return group_by_store_dict

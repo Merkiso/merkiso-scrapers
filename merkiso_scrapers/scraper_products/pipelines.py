@@ -7,100 +7,75 @@ from scraper_products.constants import COLLECTIONS
 from scraper_products.settings import MONGO_DB
 from .utils.process_data import ProcessData
 from .utils.wapp_url import wpp_url
+import threading
 import re
 
 
 class ScrapersSearhsPipeline:
 
-    items: list = []
+    items: list[dict] = []
     
     db_connection = DbConnection()
-    
+
+
     def process_item(self, item, spider):
         """
         Write items scraped into file.parquet
         """
+        print(f" item {item} spider {spider.name} ")
 
         if spider.name in {"build_car_shopping_vtex", "scrapers_vtex_sucursals_stores"}:
             return item
-
+        
         products = item.get('products')
 
         if products:
+            search_term = products[0].get("search_term")[0]
+
             for product in products:
                 product_item = dict(product)
                 clean_item = ProcessData.clean_fields(product_item)
-                search_term = clean_item['search_name']
                 product_name = clean_item['name']
                 validate_name_filter = re.search(rf'\b{re.escape(search_term)}\b', product_name, re.IGNORECASE)
+                
                 if validate_name_filter is not None:
                     self.items.append(clean_item)
 
         return item
-    
+
+
     def close_spider(self, spider):
-        products = ProcessData.order_by_product_by_alternate_store(self.items)
+
+        products_group_by_store = ProcessData.group_by_store(self.items)
         
-        for product in products:
+        for store_name, products in products_group_by_store.items():
             
-            print(f"--- product {product.get('name')} ---")
-            print(f"--- store {product.get('store').get('name')} ---")
+            search_term = products[0].get("search_term")
+            store = products[0].get("store")
+            store_name = products[0].get("store").get("name")
+            sucursal = store.get("near_sucursal")
             
-            print(f"--- sucursal {product.get('sucursal_price')} ---")
-            
-            product['created_at'] = datetime.datetime.now().isoformat()
-            
-            # if already exist, update list of prices_sucursals
-            find_product = self.db_connection.find_one(
+            self.db_connection.delete_one(
                 db_name=MONGO_DB,
-                collection_name=COLLECTIONS['products'],
+                collection_name=COLLECTIONS['products_raw'],
                 query={
-                    "product_id": product.get("product_id"),
-                    "store.name": product.get("store").get("name"),
+                    "search_term": search_term,
+                    "store_name": store_name,
+                    "sucursal": sucursal,
                 }
             )
             
-            sucursal_price = product.get("sucursal_price")
-            if find_product:
-                
-                if sucursal_price:
-                    
-                    sucursal_prices = find_product.get("sucursal_prices", [])
-                    
-                    # merge list of sucursal prices
-                    sucursal_prices.append(sucursal_price)
+            self.db_connection.insert_one(
+                db_name=MONGO_DB,
+                collection_name=COLLECTIONS['products_raw'],
+                data={
+                    "search_term": search_term,
+                    "store_name": store_name,
+                    "sucursal": sucursal,
+                    "products": products,
+                }
+            )
 
-                    # remove duplicates
-                    sucursal_prices = ProcessData.remove_duplicates_sucursal_prices(sucursal_prices)
-
-                    self.db_connection.update_one(
-                        db_name=MONGO_DB,
-                        collection_name=COLLECTIONS['products'],
-                        query={
-                            "product_id": product.get("product_id"),
-                            "store.name": product.get("store").get("name"),
-                        },
-                        data={"$set": {"sucursal_prices": sucursal_prices}}
-                    )
-
-                else:
-                    self.db_connection.update_one(
-                        db_name=MONGO_DB,
-                        collection_name=COLLECTIONS['products'],
-                        query={"product_id": product.get("product_id")},
-                        data={"$set": product}
-                    )
-                
-            else:
-                product['sucursal_prices'] = []
-                if "sucursal_price" in product:
-                    product['sucursal_prices'] = [product.get("sucursal_price")]
-                    del product['sucursal_price']
-                self.db_connection.insert_one(
-                    db_name=MONGO_DB,
-                    collection_name=COLLECTIONS['products'],
-                    data=product
-                )
 
 class CarShoppingPipeline:
 
@@ -157,7 +132,6 @@ class VtextSucursalStoresPipeline:
             """
             Write items scraped into db
             """
-
 
             if spider.name in {"build_car_shopping_vtex","scrapers_vtex", "scrapers_vtex_top_searchs"}:
                 return item
