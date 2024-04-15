@@ -138,10 +138,17 @@ class ScrapersVtex(scrapy.Spider):
             
             item_loader = ItemLoader(item=ProductListItem())
             
-            search_data = self.search_data.copy()
+            search_data = {
+                "search_term": self.search_data.get("search_term"),
+                "store": {
+                    "id": str(store["_id"]),
+                    "name": store["name"],
+                    "url": store["url"],
+                    "phone": store["phone"],
+                    "domain": store["domain"],
+                }
+            }
             search_data['search_term'] = query_search.replace("+", " ")
-            search_data["store"] = store
-
             item_loader.add_value("search_data", search_data)
             
             for product in products:
@@ -189,7 +196,7 @@ class ScrapersVtex(scrapy.Spider):
                         "price": price,
                         "promo_price":promo_price,
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
-                        "store": store,
+                        "store": search_data["store"],
                         "from_top_search": from_top_search
                     }
                     

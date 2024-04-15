@@ -1,0 +1,14 @@
+
+
+services:
+
+  app:
+    env_file:
+      - .env
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "6800:6800"
+    command: "scrapyd"

@@ -1,7 +1,5 @@
-from sklearn.metrics.pairwise import cosine_similarity
 from itertools import groupby, zip_longest
 import unicodedata
-import spacy
 import re
 
 class ProcessData():
