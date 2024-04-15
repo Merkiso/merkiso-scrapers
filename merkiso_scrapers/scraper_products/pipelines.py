@@ -44,40 +44,6 @@ class ScrapersSearhsPipeline:
         return item
 
 
-    def close_spider(self, spider):
-
-        products_group_by_store = ProcessData.group_by_store(self.items)
-        
-        for store_name, products in products_group_by_store.items():
-            
-            search_term = products[0].get("search_term")
-            store = products[0].get("store")
-            store_name = products[0].get("store").get("name")
-            sucursal = store.get("near_sucursal")
-            
-            self.db_connection.delete_one(
-                db_name=MONGO_DB,
-                collection_name=COLLECTIONS['products_raw'],
-                query={
-                    "search_term": search_term,
-                    "store_name": store_name,
-                    "sucursal": sucursal,
-                }
-            )
-            
-            self.db_connection.insert_one(
-                db_name=MONGO_DB,
-                collection_name=COLLECTIONS['products_raw'],
-                data={
-                    "search_term": search_term,
-                    "store_name": store_name,
-                    "sucursal": sucursal,
-                    "from_top_search": products[0].get("from_top_search"),
-                    "products": products,
-                }
-            )
-
-
 class CarShoppingPipeline:
 
     db_connection = DbConnection()
@@ -133,7 +99,7 @@ class VtextSucursalStoresPipeline:
             """
             Write items scraped into db
             """
-
+            
             if spider.name in {"build_car_shopping_vtex","scrapers_vtex", "scrapers_vtex_top_searchs"}:
                 return item
             

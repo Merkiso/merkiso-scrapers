@@ -16,7 +16,7 @@ class ProcessData():
                 value = value[0] if isinstance(value, list) else value
                 
             if key == 'url':
-                store_domain = data.get('store')[0].get('url')
+                store_domain = data.get('store').get('url')
                 value = cls.clean_url(store_domain, value)
 
             if isinstance(value, str):
