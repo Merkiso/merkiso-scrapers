@@ -1,5 +1,9 @@
 FROM python:3.9
 
+ENV PYTHONUNBUFFERED 1
+ENV MONGO_URI ${MONGO_URI}
+ENV MONGO_DB ${MONGO_DB}
+
 # update and install git
 RUN apt-get update && apt-get install -y git
 RUN pip install --upgrade pip
@@ -13,3 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /merkiso_scrapers/merkiso_scrapers
 
+EXPOSE 6800
+
+CMD ["scrapyd"]
