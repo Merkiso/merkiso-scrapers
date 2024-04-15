@@ -72,6 +72,7 @@ class ScrapersSearhsPipeline:
                     "search_term": search_term,
                     "store_name": store_name,
                     "sucursal": sucursal,
+                    "from_top_search": products[0].get("from_top_search"),
                     "products": products,
                 }
             )

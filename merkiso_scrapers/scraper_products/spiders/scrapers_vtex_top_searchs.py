@@ -14,7 +14,7 @@ from scraper_products.utils.build_url import build_url
 class ScrapersVtexTopSearchs(ScrapersVtex):
     name = "scrapers_vtex_top_searchs"
     URL_TOP_SEARCHS_TEMPLATE: Final[str] = Template('https://$domain/api/io/_v/api/intelligent-search/top_searches')
-    COUNT_PRODUCTS_PER_PAGE: Final[int] = 1
+    COUNT_PRODUCTS_PER_PAGE: Final[int] = 100
     
     def __init__(self, **kwargs):
         self.sucursal_ids = kwargs.get("sucursal_ids")
