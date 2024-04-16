@@ -26,12 +26,11 @@ class ScrapersVtex(scrapy.Spider):
     allowed_domains = []
 
     URL_PRODUCTS_TEMPLATE: Final[str] = Template('https://$domain/api/io/_v/api/intelligent-search/product_search')
-    COUNT_PRODUCTS_PER_PAGE: Final[int] = 100
+    COUNT_PRODUCTS_PER_PAGE: Final[int] = 30
     
     QUERY_PARAM_PRODUCTS: Final[dict] = {
         "query": "product_name",
         "hideUnavailableItems": "true",
-        "sort": "price:asc",
     }
 
     STORE: str = "store"
