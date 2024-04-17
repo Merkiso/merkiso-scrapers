@@ -2,6 +2,7 @@
 import base64
 import json
 import time
+import uuid
 from scrapy.crawler import CrawlerProcess
 from itemloaders import ItemLoader
 from string import Template
@@ -185,6 +186,7 @@ class ScrapersVtex(scrapy.Spider):
                         continue
                     
                     product_data = {
+                        "id": str(uuid.uuid4()),
                         "search_term" : search_data["search_term"],
                         "product_id": product_item["itemId"],
                         "name": product_item["name"],

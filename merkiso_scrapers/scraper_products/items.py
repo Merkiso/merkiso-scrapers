@@ -12,7 +12,9 @@ class ProductListItem(scrapy.Item):
     search_data = scrapy.Field(output_processor=TakeFirst())
     store = scrapy.Field(output_processor=TakeFirst())
 
+
 class ProductItem(scrapy.Item):
+    id = scrapy.Field(output_processor=TakeFirst())
     name = scrapy.Field(output_processor=TakeFirst())
     product_id = scrapy.Field(output_processor=TakeFirst())
     description = scrapy.Field(output_processor=TakeFirst())
@@ -26,17 +28,19 @@ class ProductItem(scrapy.Item):
     search_term = scrapy.Field(output_processor=TakeFirst())
     sucursal_price = scrapy.Field(output_processor=TakeFirst())
     from_top_search = scrapy.Field(output_processor=TakeFirst())
-    
-    
+
+
 class StoreItem(scrapy.Item):
     name = scrapy.Field(output_processor=TakeFirst())
     adress = scrapy.Field(output_processor=TakeFirst())
     url = scrapy.Field(output_processor=TakeFirst())
 
+
 class ProductInShoppingCarItem(scrapy.Item):
     product_id = scrapy.Field(output_processor=TakeFirst())
     quantity = scrapy.Field(output_processor=TakeFirst())
-    
+
+
 class ShoppingCarItem(scrapy.Item):
     _id = scrapy.Field(output_processor=TakeFirst())
     cart_id = scrapy.Field(output_processor=TakeFirst())
@@ -46,6 +50,7 @@ class ShoppingCarItem(scrapy.Item):
     coupon = scrapy.Field(output_processor=TakeFirst())
     user_id = scrapy.Field(output_processor=TakeFirst())
     url_purchase_wp = scrapy.Field(output_processor=TakeFirst())
+
 
 class SucursalStoreItem(scrapy.Item):
     _id = scrapy.Field(output_processor=TakeFirst())
