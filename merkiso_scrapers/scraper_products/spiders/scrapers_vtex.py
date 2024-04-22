@@ -39,14 +39,22 @@ class ScrapersVtex(scrapy.Spider):
     handle_httpstatus_list = [406]
     
     umbral = 0.50
+    db_connection = DbConnection()
+    
+
+    def save_pre_products(self, data):
+        self.db_connection.insert_one(
+            db_name=MONGO_DB,
+            collection_name=COLLECTIONS['products_raw'],
+            data=data
+        )
     
     def get_stores(
         self,
         ids: str,
     ):  
 
-        db_connection = DbConnection()
-        stores = list(db_connection.find(
+        stores = list(self.db_connection.find(
             db_name=MONGO_DB,
             collection_name=COLLECTIONS['stores'],
             query={}
@@ -60,7 +68,7 @@ class ScrapersVtex(scrapy.Spider):
             decode_ids_b64 = json.loads(decode_ids_b64)
             ids = [ObjectId(_id) for _id in decode_ids_b64]
             
-            stores_sucursals = list(db_connection.find(
+            stores_sucursals = list(self.db_connection.find(
                 db_name=MONGO_DB,
                 collection_name=COLLECTIONS['sucursals'],
                 query={
@@ -154,7 +162,28 @@ class ScrapersVtex(scrapy.Spider):
             for product in products:
                 products_items = product.get("items", [])
                 
-
+                # get categorization
+                categorization = product.get("categories", [])
+                
+                department = ""
+                category = ""
+                subcategory = ""
+                
+                if categorization:
+                    categorization = categorization[0].split("/")
+                    
+                    index_cat = 0
+                    
+                    for cat in categorization:
+                        if cat != '':
+                            if index_cat == 0:
+                                department = cat
+                            elif index_cat == 1:
+                                category = cat
+                            elif index_cat == 2:
+                                subcategory = cat
+                            index_cat += 1
+ 
                 for product_item in products_items:
 
                     price = 0
@@ -184,7 +213,7 @@ class ScrapersVtex(scrapy.Spider):
                     
                     if not price:
                         continue
-                    
+
                     product_data = {
                         "id": str(uuid.uuid4()),
                         "search_term" : search_data["search_term"],
@@ -197,15 +226,30 @@ class ScrapersVtex(scrapy.Spider):
                         "price": price,
                         "promo_price":promo_price,
                         "images": [image['imageUrl'] for image in product_item["images"] if image['imageUrl']],
+                        "department": department,
+                        "category": category,
+                        "subcategory": subcategory,
                         "store": search_data["store"],
                         "from_top_search": from_top_search
                     }
                     
                     if product_data not in product_items:
                         product_items.append(self.create_item_product(product_data))
-
-            item_loader.add_value("products", product_items)
+            # ey backend ya tienes los productos
+            # guardar structura de product_raw pero sin array de productos, dejandolo vacio
+            self.save_pre_products(
+                {
+                    "search_term": search_data["search_term"],
+                    "store_name": search_data["store"]["name"],
+                    #"sucursal": store['near_sucursal']['sucursal_id'],
+                    "from_top_search": from_top_search,
+                    "products": []
+                }
+            )
             
+            item_loader.add_value("products", product_items)
+            # fianliza productgos de x tgienda
+            # mongo para sabe si fnaliza bandera
             yield item_loader.load_item()
         except Exception as e:
             traceback.print_exc()
