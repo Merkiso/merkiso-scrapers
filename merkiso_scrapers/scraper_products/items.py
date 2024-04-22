@@ -28,7 +28,9 @@ class ProductItem(scrapy.Item):
     search_term = scrapy.Field(output_processor=TakeFirst())
     sucursal_price = scrapy.Field(output_processor=TakeFirst())
     from_top_search = scrapy.Field(output_processor=TakeFirst())
-
+    department = scrapy.Field()
+    category = scrapy.Field()
+    subcategory = scrapy.Field()
 
 class StoreItem(scrapy.Item):
     name = scrapy.Field(output_processor=TakeFirst())
