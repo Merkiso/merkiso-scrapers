@@ -121,7 +121,16 @@ class ScrapersVtex(scrapy.Spider):
                 url_products = f"{url_products}/region-id/{store['near_sucursal']['sucursal_id']}"
             
             url = build_url(url_products, query_param_products)
-
+            
+            self.save_pre_products(
+                {
+                    "search_term": self.search_data['search_term'],
+                    "store_name": store["name"],
+                    #"sucursal": store['near_sucursal']['sucursal_id'],
+                    "from_top_search": False,
+                    "products": []
+                }
+            )
             
             yield scrapy.Request(
                 url=url,
@@ -237,15 +246,6 @@ class ScrapersVtex(scrapy.Spider):
                         product_items.append(self.create_item_product(product_data))
             # ey backend ya tienes los productos
             # guardar structura de product_raw pero sin array de productos, dejandolo vacio
-            self.save_pre_products(
-                {
-                    "search_term": search_data["search_term"],
-                    "store_name": search_data["store"]["name"],
-                    #"sucursal": store['near_sucursal']['sucursal_id'],
-                    "from_top_search": from_top_search,
-                    "products": []
-                }
-            )
             
             item_loader.add_value("products", product_items)
             # fianliza productgos de x tgienda
