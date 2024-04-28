@@ -1,16 +1,13 @@
 # lib
 import base64
 import json
-import time
 import uuid
 from scrapy.crawler import CrawlerProcess
 from itemloaders import ItemLoader
 from string import Template
 from typing import Final
-import threading
 import traceback
 import scrapy
-import asyncio
 
 
 # app
@@ -49,98 +46,85 @@ class ScrapersVtex(scrapy.Spider):
             data=data
         )
     
-    def get_stores(
+    def get_near_sucursal(
         self,
+        store: dict,
         ids: str,
     ):  
 
-        stores = list(self.db_connection.find(
+        #decode ids from base64
+        decode_ids_b64 = base64.b64decode(ids)
+        decode_ids_b64 = decode_ids_b64.decode('utf-8')
+        decode_ids_b64 = json.loads(decode_ids_b64)
+        ids = [ObjectId(_id) for _id in decode_ids_b64]
+        
+        stores_sucursals = list(self.db_connection.find(
             db_name=MONGO_DB,
-            collection_name=COLLECTIONS['stores'],
-            query={}
+            collection_name=COLLECTIONS['sucursals'],
+            query={
+                "_id": {"$in": ids}
+            }
         ))
-
-        if ids:
-
-            #decode ids from base64
-            decode_ids_b64 = base64.b64decode(ids)
-            decode_ids_b64 = decode_ids_b64.decode('utf-8')
-            decode_ids_b64 = json.loads(decode_ids_b64)
-            ids = [ObjectId(_id) for _id in decode_ids_b64]
-            
-            stores_sucursals = list(self.db_connection.find(
-                db_name=MONGO_DB,
-                collection_name=COLLECTIONS['sucursals'],
-                query={
-                    "_id": {"$in": ids}
-                }
-            ))
-            
-            if stores_sucursals:
-                for store in stores:
-                    store_sucursal = list(
-                        filter(
-                            lambda x: x["store"]["_id"] == store["_id"],
-                            stores_sucursals
-                        )
-                    )
-                    
-                    if store_sucursal:
-                        store_sucursal = store_sucursal[0]
-                        store["near_sucursal"] = store_sucursal
-
-        return stores
-
-
-    def __init__(self, product_name: str, **kwargs):
         
+        if stores_sucursals:
+            store_sucursal = list(
+                filter(
+                    lambda x: x["store"]["_id"] == store["_id"],
+                    stores_sucursals
+                )
+            )
+            
+            if store_sucursal:
+                return store_sucursal[0]
+
+
+    def __init__(self, product_name: str, store: str, **kwargs):
+            
+        decode_store_b64 = base64.b64decode(store)
+        decode_store_b64 = decode_store_b64.decode('utf-8')
+        store = json.loads(decode_store_b64)
+            
         sucursal_ids = kwargs.get("sucursal_ids")
-        
+        if sucursal_ids:
+            near_sucursal = self.get_near_sucursal(store, sucursal_ids)
+            if near_sucursal:
+                store["near_sucursal"] = near_sucursal
+    
         self.search_data = {
             "search_term": product_name,
-            "stores": [store for store in self.get_stores(sucursal_ids)],
+            "store": store,
         }
         
         super(ScrapersVtex, self).__init__(**kwargs)
 
     def start_requests(self):
 
-        for store in self.search_data['stores']:
+        store = self.search_data["store"]
+        
+        query_param_products = {
+            **self.QUERY_PARAM_PRODUCTS,
+            "query": self.search_data['search_term'],
+            "count": self.COUNT_PRODUCTS_PER_PAGE,
+        }
+        
+        domain = store.get("domain")
 
-            query_param_products = {
-                **self.QUERY_PARAM_PRODUCTS,
-                "query": self.search_data['search_term'],
-                "count": self.COUNT_PRODUCTS_PER_PAGE,
-            }
-            
-            domain = store.get("domain")
+        url_products = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)
 
-            url_products = self.URL_PRODUCTS_TEMPLATE.substitute(domain=domain)
-
-            if "near_sucursal" in store:
-                url_products = f"{url_products}/region-id/{store['near_sucursal']['sucursal_id']}"
-            
-            url = build_url(url_products, query_param_products)
-            
-            self.save_pre_products(
-                {
-                    "search_term": self.search_data['search_term'],
-                    "store_name": store["name"],
-                    #"sucursal": store['near_sucursal']['sucursal_id'],
-                    "from_top_search": False,
-                    "products": []
-                }
-            )
-            
-            yield scrapy.Request(
-                url=url,
-                method="GET",
-                callback=self.parse,
-                meta={"store": store}
-            )
+        if "near_sucursal" in store:
+            url_products = f"{url_products}/region-id/{store['near_sucursal']['sucursal_id']}"
+        
+        url = build_url(url_products, query_param_products)
+        
+        
+        yield scrapy.Request(
+            url=url,
+            method="GET",
+            callback=self.parse,
+            meta={"store": store}
+        )
     
     def parse(self, response):
-
         try:
             store = response.meta["store"]
             from_top_search = response.meta.get("from_top_search", False)
@@ -244,12 +228,8 @@ class ScrapersVtex(scrapy.Spider):
                     
                     if product_data not in product_items:
                         product_items.append(self.create_item_product(product_data))
-            # ey backend ya tienes los productos
-            # guardar structura de product_raw pero sin array de productos, dejandolo vacio
             
             item_loader.add_value("products", product_items)
-            # fianliza productgos de x tgienda
-            # mongo para sabe si fnaliza bandera
             yield item_loader.load_item()
         except Exception as e:
             traceback.print_exc()
