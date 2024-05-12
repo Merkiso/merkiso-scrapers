@@ -30,7 +30,8 @@ class BuildCarShopingVtex(scrapy.Spider):
     
     stores: list = []
     store: dict = {}
-
+    handle_httpstatus_list = [401, 403, 406, 500]
+    
     db_connection = DbConnection()
     
     def __init__(
@@ -61,7 +62,7 @@ class BuildCarShopingVtex(scrapy.Spider):
         )
         
         self.stores.append(self.store)
-        
+
         if not self.store:
             
             stores_in_products = set(
@@ -77,15 +78,14 @@ class BuildCarShopingVtex(scrapy.Spider):
         
     
     def start_requests(self):
-        
+        print("start asdtar")
         for store in self.stores:
-            
             store_domain = store.get("domain")
 
             url = self.URL_CHECKOUT.substitute(domain=store_domain)
             url = f"{url}{self.PATH_CREATE_CAR_SHOPPING}"
             url = build_url(url, self.QUERY_PARAM_CREATE_CAR_SHOPPING)
-
+            
             yield scrapy.Request(
                 url=url,
                 method="GET",
@@ -97,6 +97,7 @@ class BuildCarShopingVtex(scrapy.Spider):
             )
 
     def post_save_items(self, response):
+
         store = response.meta["store"]
         store_domain = store.get("domain")
         
@@ -136,7 +137,6 @@ class BuildCarShopingVtex(scrapy.Spider):
         )
 
     def parse(self, response):
-        
 
         store = response.meta["store"]
         checkout_prefix = store.get("checkout_prefix")
