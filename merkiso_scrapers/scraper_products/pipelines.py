@@ -1,5 +1,6 @@
 # lib
 import datetime
+import time
 
 # scraper
 from scraper_products.db.database import DbConnection
@@ -24,9 +25,9 @@ class ScrapersSearhsPipeline:
         """
         print(f" item {item} spider {spider.name} ")
 
-        if spider.name in {"build_car_shopping_vtex", "scrapers_vtex_sucursals_stores"}:
+        if spider.name in {"build_car_shopping_vtex", "scrapers_vtex_sucursals_stores", "scrapers_vtex_top_searchs"}:
             return item
-        
+
         products = item.get('products')
 
         if products:
@@ -51,7 +52,7 @@ class ScrapersSearhsPipeline:
             store_name = products[0].get("store").get("name")
             sucursal = store.get("near_sucursal")
             from_top_search = products[0].get("from_top_search")
-            
+
             self.db_connection.delete_one(
                 db_name=MONGO_DB,
                 collection_name=COLLECTIONS['products_raw'],
@@ -74,6 +75,61 @@ class ScrapersSearhsPipeline:
                     "products": products,
                 }
             )
+
+class ScrapersTopSearhsPipeline:
+    
+    db_connection = DbConnection()
+
+    def process_item(self, item, spider):
+        """
+        Write items scraped into file.parquet
+        """
+        print(f"item {item} spider {spider.name} ")
+
+        if spider.name in {"build_car_shopping_vtex", "scrapers_vtex_sucursals_stores", "scrapers_vtex"}:
+            return item
+
+        products = item.get('products')
+        items = []
+        
+        if products:
+            for product in products:
+                product_item = dict(product)
+                clean_item = ProcessData.clean_fields(product_item)
+                items.append(clean_item)
+
+            search_term = products[0].get("search_term")
+            store = products[0].get("store")
+            store_name = products[0].get("store").get("name")
+            sucursal = store.get("near_sucursal")
+            from_top_search = products[0].get("from_top_search")
+
+            self.db_connection.delete_one(
+                db_name=MONGO_DB,
+                collection_name=COLLECTIONS['products_raw'],
+                query={
+                    "search_term": search_term,
+                    "store_name": store_name,
+                    "sucursal": sucursal,
+                    "from_top_search": from_top_search,
+                }
+            )
+            
+            self.db_connection.insert_one(
+                db_name=MONGO_DB,
+                collection_name=COLLECTIONS['products_raw'],
+                data={
+                    "search_term": search_term,
+                    "store_name": store_name,
+                    "sucursal": sucursal,
+                    "from_top_search": from_top_search,
+                    "products": products,
+                }
+            )
+        return item
+
+    def close_spider(self, spider):
+        pass
 
 
 class CarShoppingPipeline:

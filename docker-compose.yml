@@ -1,0 +1,25 @@
+services:
+  scrapyd:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -c "while true; do sleep 1; done"
+    volumes:
+        - ./merkiso_scrapers:/merkiso_scrapers
+    ports:
+        - "6800:6800"
+
+  scrapydweb:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: scrapydweb
+    volumes:
+        - ./merkiso_scrapers:/merkiso_scrapers
+    ports:
+        - "5000:5000"
+    restart: always

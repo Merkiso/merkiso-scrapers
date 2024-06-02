@@ -89,6 +89,7 @@ ITEM_PIPELINES = {
     "scraper_products.pipelines.ScrapersSearhsPipeline": 1,
     "scraper_products.pipelines.CarShoppingPipeline": 2,
     "scraper_products.pipelines.VtextSucursalStoresPipeline": 3,
+    "scraper_products.pipelines.ScrapersTopSearhsPipeline": 4,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -119,7 +120,7 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 LOG_ENABLED = True
 
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 
 load_dotenv()
 
