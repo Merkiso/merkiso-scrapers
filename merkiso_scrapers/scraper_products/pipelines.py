@@ -34,7 +34,11 @@ class ScrapersSearhsPipeline:
             for product in products:
                 product_item = dict(product)
                 clean_item = ProcessData.clean_fields(product_item)
-                self.items.append(clean_item)
+
+                search_name_chars = [char for char in clean_item['search_name']]
+                validate_name_filter = all(re.search(rf'(?i){char}', re.escape(clean_item['name'])) for char in search_name_chars)
+                if validate_name_filter is not None:
+                    self.items.append(clean_item)
 
         return item
 
